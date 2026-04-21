@@ -1,7 +1,10 @@
 {
-  "fetched_at": null,
+  "fetched_at": "2026-04-21T20:00:01Z",
   "source": "https://officialrecords.broward.org/AcclaimWeb",
-  "date_range": {"from": null, "to": null},
+  "date_range": {
+    "from": "04/14/2026",
+    "to": "04/21/2026"
+  },
   "total": 0,
   "with_address": 0,
   "records": []
