@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# BCPA bulk file (large, paywalled — don't commit)
+data/BCPA_TAX_ROLL.DBF
+data/BCPA_TAX_ROLL.DBT
+data/*.dbf
+data/*.DBF
+
+# Pre-downloaded Acclaim CSVs (local cache; workflow doesn't need them)
+data/SearchResults*.csv
+
+# Playwright
+.playwright/
+playwright-report/
+test-results/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

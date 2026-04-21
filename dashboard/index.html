@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Broward Motivated Seller Leads</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#14181d; --panel-2:#1a1f26;
+    --ink:#e8eaed; --ink-dim:#9aa3ad; --rule:#262c34;
+    --hot:#ff4d3d; --warm:#ffb020; --cool:#4fc3f7; --cold:#5c6573;
+    --accent:#c7ff5b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+       font-family:"Inter",system-ui,sans-serif; font-size:14px; line-height:1.5}
+  .shell{max-width:1480px; margin:0 auto; padding:40px 32px}
+
+  header.hero{border-bottom:1px solid var(--rule); padding-bottom:28px; margin-bottom:28px;
+    display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap}
+  .title-block h1{margin:0; font-family:"Fraunces",serif; font-weight:800;
+    font-size:56px; letter-spacing:-1.5px; line-height:1}
+  .title-block h1 em{color:var(--accent); font-style:italic; font-weight:600}
+  .title-block .sub{margin-top:10px; color:var(--ink-dim);
+    font-family:"JetBrains Mono",monospace; font-size:12px; letter-spacing:0.5px;
+    text-transform:uppercase}
+  .stats{display:grid; grid-template-columns:repeat(4,minmax(120px,1fr)); gap:12px; min-width:520px}
+  .stat{background:var(--panel); border:1px solid var(--rule); padding:14px 16px; border-radius:4px}
+  .stat .v{font-family:"Fraunces",serif; font-weight:800; font-size:28px; letter-spacing:-0.5px}
+  .stat .k{font-family:"JetBrains Mono",monospace; font-size:10.5px; color:var(--ink-dim);
+    text-transform:uppercase; letter-spacing:0.8px; margin-top:2px}
+
+  .toolbar{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:20px}
+  .toolbar input, .toolbar select, .toolbar button{
+    background:var(--panel); color:var(--ink); border:1px solid var(--rule);
+    padding:9px 12px; border-radius:3px; font:inherit; font-size:13px}
+  .toolbar input{width:260px}
+  .toolbar input::placeholder{color:var(--ink-dim)}
+  .toolbar .spacer{flex:1}
+  .toolbar .meta{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--ink-dim)}
+  .toolbar button{cursor:pointer; background:var(--accent); color:#0b0d10; font-weight:600;
+    border:none; letter-spacing:0.3px}
+  .toolbar button:hover{opacity:0.88}
+
+  table.leads{width:100%; border-collapse:collapse; background:var(--panel);
+    border-radius:4px; overflow:hidden}
+  table.leads th{text-align:left; padding:12px 14px; font-size:10.5px;
+    font-family:"JetBrains Mono",monospace; font-weight:500; color:var(--ink-dim);
+    text-transform:uppercase; letter-spacing:0.8px; background:var(--panel-2);
+    border-bottom:1px solid var(--rule); position:sticky; top:0; cursor:pointer;
+    user-select:none}
+  table.leads th:hover{color:var(--ink)}
+  table.leads td{padding:14px; border-bottom:1px solid var(--rule); vertical-align:top}
+  table.leads tr:last-child td{border-bottom:none}
+  table.leads tr:hover td{background:var(--panel-2)}
+
+  .score{display:inline-flex; align-items:center; justify-content:center;
+    width:44px; height:44px; border-radius:50%; font-family:"Fraunces",serif;
+    font-weight:800; font-size:17px; letter-spacing:-0.5px}
+  .score.hot {background:rgba(255,77,61,0.15);  color:var(--hot);  border:1px solid rgba(255,77,61,0.4)}
+  .score.warm{background:rgba(255,176,32,0.12); color:var(--warm); border:1px solid rgba(255,176,32,0.4)}
+  .score.cool{background:rgba(79,195,247,0.1);  color:var(--cool); border:1px solid rgba(79,195,247,0.4)}
+  .score.cold{background:rgba(92,101,115,0.15); color:var(--cold); border:1px solid rgba(92,101,115,0.4)}
+
+  .name{font-weight:600; color:var(--ink); margin-bottom:2px}
+  .grantee{color:var(--ink-dim); font-size:12.5px}
+  .addr{color:var(--ink-dim); font-size:12.5px; margin-top:4px}
+
+  .chip{display:inline-block; padding:2px 8px; border-radius:2px;
+    font-family:"JetBrains Mono",monospace; font-size:10px; text-transform:uppercase;
+    letter-spacing:0.6px; margin:1px 3px 1px 0; background:var(--panel-2);
+    border:1px solid var(--rule); color:var(--ink-dim)}
+  .chip.lp            {color:var(--hot);    border-color:rgba(255,77,61,0.4)}
+  .chip.pre-foreclosure{color:var(--hot);   border-color:rgba(255,77,61,0.4)}
+  .chip.judgment-lien {color:var(--warm);   border-color:rgba(255,176,32,0.4)}
+  .chip.tax-lien      {color:var(--hot);    border-color:rgba(255,77,61,0.4)}
+  .chip.mechanic-lien {color:var(--warm);   border-color:rgba(255,176,32,0.4)}
+  .chip.probate       {color:var(--cool);   border-color:rgba(79,195,247,0.4)}
+  .chip.llc-corp-owner{color:var(--accent); border-color:rgba(199,255,91,0.35)}
+  .chip.new-this-week {color:#d98fff;       border-color:rgba(217,143,255,0.35)}
+
+  .doctype-chip{display:inline-block; padding:2px 8px; border-radius:2px;
+    font-family:"JetBrains Mono",monospace; font-size:10.5px; background:var(--panel-2);
+    border:1px solid var(--rule); color:var(--ink-dim); letter-spacing:0.5px}
+  .instrument{font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--ink-dim)}
+  .instrument a{color:var(--ink); text-decoration:none; border-bottom:1px dotted var(--rule)}
+  .instrument a:hover{color:var(--accent); border-bottom-color:var(--accent)}
+  .amount{font-family:"JetBrains Mono",monospace; font-size:12.5px; text-align:right}
+  .legal{color:var(--ink-dim); font-size:12px; max-width:280px; line-height:1.45}
+
+  .empty{padding:60px; text-align:center; color:var(--ink-dim);
+    font-family:"Fraunces",serif; font-size:22px; font-style:italic}
+  .error-banner{background:rgba(255,77,61,0.1); border:1px solid rgba(255,77,61,0.4);
+    color:var(--hot); padding:14px 18px; border-radius:4px; margin-bottom:20px;
+    font-family:"JetBrains Mono",monospace; font-size:12px}
+
+  footer{margin-top:32px; color:var(--ink-dim); font-size:11px;
+    font-family:"JetBrains Mono",monospace; letter-spacing:0.4px}
+  footer a{color:var(--ink-dim)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="hero">
+    <div class="title-block">
+      <h1>Broward <em>motivated</em> sellers</h1>
+      <div class="sub" id="sub">loading records.json …</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="stat-total">—</div><div class="k">Total leads</div></div>
+      <div class="stat"><div class="v" id="stat-hot">—</div><div class="k">Hot (≥70)</div></div>
+      <div class="stat"><div class="v" id="stat-warm">—</div><div class="k">Warm (50-69)</div></div>
+      <div class="stat"><div class="v" id="stat-addr">—</div><div class="k">With address</div></div>
+    </div>
+  </header>
+
+  <div id="errorBanner" class="error-banner" style="display:none"></div>
+
+  <div class="toolbar">
+    <input id="q" placeholder="Filter by owner, address, legal, case…">
+    <select id="typeFilter"><option value="">All lead types</option></select>
+    <select id="flagFilter">
+      <option value="">All flags</option>
+      <option value="Lis pendens">Lis pendens</option>
+      <option value="Pre-foreclosure">Pre-foreclosure</option>
+      <option value="Judgment lien">Judgment lien</option>
+      <option value="Tax lien">Tax lien</option>
+      <option value="Mechanic lien">Mechanic lien</option>
+      <option value="Probate / estate">Probate / estate</option>
+      <option value="LLC / corp owner">LLC / corp owner</option>
+      <option value="New this week">New this week</option>
+    </select>
+    <button id="exportBtn">Export GHL CSV</button>
+    <div class="spacer"></div>
+    <div class="meta"><span id="visibleCount">—</span> showing</div>
+  </div>
+
+  <table class="leads" id="leads">
+    <thead>
+      <tr>
+        <th data-sort="score" data-dir="desc">Score</th>
+        <th data-sort="filed">Filed</th>
+        <th data-sort="cat">Type</th>
+        <th data-sort="owner">Owner</th>
+        <th>Property / Mailing</th>
+        <th>Flags</th>
+        <th>Legal</th>
+        <th data-sort="amount" class="amount">Amount</th>
+        <th>Doc #</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none">Nothing matches those filters.</div>
+
+  <footer>
+    Broward County Official Records (AcclaimWeb) + Broward County Property Appraiser.
+    Informational only — not a title search or legal advice.
+  </footer>
+</div>
+
+<script>
+  "use strict";
+
+  const escapeHtml = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+  const slugify = s => String(s).toLowerCase()
+    .replace(/\s*\/\s*/g, "-").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+  let ALL_RECORDS = [];
+  let CURRENT_VIEW = [];
+
+  function classForScore(score) {
+    if (score >= 70) return "hot";
+    if (score >= 50) return "warm";
+    if (score >= 30) return "cool";
+    return "cold";
+  }
+
+  function renderRow(r) {
+    const tier = classForScore(r.score || 0);
+
+    const flags = (r.flags || []).map(f =>
+      `<span class="chip ${slugify(f)}">${escapeHtml(f)}</span>`
+    ).join("") || `<span style="color:var(--cold); font-size:11px">—</span>`;
+
+    // Combine property + mailing lines
+    const propLine = [
+      r.prop_address,
+      [r.prop_city, r.prop_state, r.prop_zip].filter(Boolean).join(" "),
+    ].filter(Boolean).join(", ");
+    const mailLine = [
+      r.mail_address,
+      [r.mail_city, r.mail_state, r.mail_zip].filter(Boolean).join(" "),
+    ].filter(Boolean).join(", ");
+    let addrBlock = "";
+    if (propLine) {
+      addrBlock += `<div class="addr"><strong style="color:#c0c5cc">Property:</strong> ${escapeHtml(propLine)}</div>`;
+    }
+    if (mailLine && mailLine !== propLine) {
+      addrBlock += `<div class="addr"><strong style="color:#c0c5cc">Mail:</strong> ${escapeHtml(mailLine)}</div>`;
+    }
+    if (!addrBlock) addrBlock = `<div class="addr">— no BCPA match —</div>`;
+
+    const amount = r.amount > 0 ? "$" + r.amount.toLocaleString("en-US", {maximumFractionDigits: 0}) : "—";
+    const legal = r.legal ? (r.legal.length > 180 ? r.legal.slice(0, 180) + "…" : r.legal) : "—";
+    const docLink = r.clerk_url
+      ? `<a href="${escapeHtml(r.clerk_url)}" target="_blank" rel="noopener">${escapeHtml(r.doc_num)}</a>`
+      : escapeHtml(r.doc_num);
+
+    return `<tr>
+      <td><div class="score ${tier}">${r.score || 0}</div></td>
+      <td><div class="instrument">${escapeHtml(r.filed || "")}</div></td>
+      <td><span class="doctype-chip">${escapeHtml(r.cat)}</span>
+          <div class="instrument" style="margin-top:4px">${escapeHtml(r.cat_label)}</div></td>
+      <td><div class="name">${escapeHtml(r.owner || "—")}</div>
+          ${r.grantee ? `<div class="grantee">→ ${escapeHtml(r.grantee)}</div>` : ""}</td>
+      <td>${addrBlock}</td>
+      <td>${flags}</td>
+      <td><div class="legal">${escapeHtml(legal)}</div></td>
+      <td class="amount">${amount}</td>
+      <td><div class="instrument">${docLink}</div></td>
+    </tr>`;
+  }
+
+  function applyFilters() {
+    const q = document.getElementById("q").value.trim().toLowerCase();
+    const typ = document.getElementById("typeFilter").value;
+    const flag = document.getElementById("flagFilter").value;
+
+    CURRENT_VIEW = ALL_RECORDS.filter(r => {
+      if (typ && r.cat !== typ) return false;
+      if (flag && !(r.flags || []).includes(flag)) return false;
+      if (q) {
+        const hay = [
+          r.owner, r.grantee, r.legal, r.prop_address, r.prop_city,
+          r.mail_address, r.doc_num, r.doc_type, r.cat_label,
+        ].join(" ").toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    const tbody = document.getElementById("rows");
+    tbody.innerHTML = CURRENT_VIEW.map(renderRow).join("");
+    document.getElementById("visibleCount").textContent = CURRENT_VIEW.length;
+    document.getElementById("empty").style.display = CURRENT_VIEW.length === 0 ? "" : "none";
+  }
+
+  function sortBy(key, dir) {
+    CURRENT_VIEW.sort((a, b) => {
+      let av = a[key], bv = b[key];
+      const an = parseFloat(av), bn = parseFloat(bv);
+      if (!isNaN(an) && !isNaN(bn)) { av = an; bv = bn; }
+      if (av < bv) return dir === "asc" ? -1 : 1;
+      if (av > bv) return dir === "asc" ?  1 : -1;
+      return 0;
+    });
+    document.getElementById("rows").innerHTML = CURRENT_VIEW.map(renderRow).join("");
+  }
+
+  // GHL CSV export -- mirrors scraper/fetch.py's export_ghl_csv()
+  const GHL_HEADERS = [
+    "First Name","Last Name","Mailing Address","Mailing City","Mailing State","Mailing Zip",
+    "Property Address","Property City","Property State","Property Zip",
+    "Lead Type","Document Type","Date Filed","Document Number",
+    "Amount/Debt Owed","Seller Score","Motivated Seller Flags","Source","Public Records URL",
+  ];
+  function splitOwner(owner) {
+    if (!owner) return ["", ""];
+    const o = owner.trim();
+    if (o.includes(",")) {
+      const [last, rest] = o.split(",", 2);
+      const first = (rest || "").trim().split(/\s+/)[0] || "";
+      return [first, last.trim()];
+    }
+    const parts = o.split(/\s+/);
+    if (parts.length >= 2) return [parts[0], parts[parts.length - 1]];
+    return [o, ""];
+  }
+  function csvEscape(v) {
+    const s = String(v == null ? "" : v);
+    return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  }
+  function exportCSV() {
+    const rows = [GHL_HEADERS.join(",")];
+    let written = 0;
+    for (const r of CURRENT_VIEW) {
+      const mailAddr  = r.mail_address || r.prop_address;
+      const mailCity  = r.mail_city || r.prop_city;
+      const mailState = r.mail_state || r.prop_state || "FL";
+      const mailZip   = r.mail_zip || r.prop_zip;
+      if (!mailAddr) continue;
+      const [first, last] = splitOwner(r.owner);
+      rows.push([
+        first, last, mailAddr, mailCity, mailState, mailZip,
+        r.prop_address, r.prop_city, r.prop_state || "FL", r.prop_zip,
+        r.cat_label, r.doc_type, r.filed, r.doc_num,
+        r.amount ? r.amount.toFixed(2) : "",
+        r.score, (r.flags || []).join("; "),
+        "https://officialrecords.broward.org/AcclaimWeb", r.clerk_url,
+      ].map(csvEscape).join(","));
+      written++;
+    }
+    const blob = new Blob([rows.join("\n")], {type: "text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `broward_leads_ghl_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    alert(`Exported ${written} leads with deliverable addresses.`);
+  }
+
+  function boot() {
+    fetch("records.json?v=" + Date.now())
+      .then(r => { if (!r.ok) throw new Error("records.json: " + r.status); return r.json(); })
+      .then(d => {
+        ALL_RECORDS = Array.isArray(d.records) ? d.records : [];
+        // Sub-line: fetched_at and range
+        const fetched = d.fetched_at || "never";
+        const range = d.date_range ? `${d.date_range.from || "?"} → ${d.date_range.to || "?"}` : "";
+        document.getElementById("sub").textContent =
+          `fetched ${fetched}  ·  window ${range}  ·  ${ALL_RECORDS.length} leads`;
+
+        // Populate type filter
+        const types = [...new Set(ALL_RECORDS.map(r => r.cat).filter(Boolean))].sort();
+        const typeSel = document.getElementById("typeFilter");
+        for (const t of types) {
+          const o = document.createElement("option");
+          o.value = t; o.textContent = t;
+          typeSel.appendChild(o);
+        }
+
+        // Stat tiles
+        document.getElementById("stat-total").textContent = d.total ?? ALL_RECORDS.length;
+        document.getElementById("stat-hot").textContent   =
+          ALL_RECORDS.filter(r => (r.score || 0) >= 70).length;
+        document.getElementById("stat-warm").textContent  =
+          ALL_RECORDS.filter(r => (r.score || 0) >= 50 && (r.score || 0) < 70).length;
+        document.getElementById("stat-addr").textContent  = d.with_address ?? 0;
+
+        applyFilters();
+      })
+      .catch(err => {
+        const b = document.getElementById("errorBanner");
+        b.style.display = "";
+        b.textContent = "Could not load records.json — " + err.message +
+          ". The first scheduled run will populate it.";
+        document.getElementById("sub").textContent = "no data yet";
+      });
+
+    document.getElementById("q").addEventListener("input", applyFilters);
+    document.getElementById("typeFilter").addEventListener("change", applyFilters);
+    document.getElementById("flagFilter").addEventListener("change", applyFilters);
+    document.getElementById("exportBtn").addEventListener("click", exportCSV);
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.sort;
+        const dir = th.dataset.dir === "asc" ? "desc" : "asc";
+        document.querySelectorAll("th[data-sort]").forEach(o => o.dataset.dir = "");
+        th.dataset.dir = dir;
+        sortBy(key, dir);
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", boot);
+</script>
+</body>
+</html>
