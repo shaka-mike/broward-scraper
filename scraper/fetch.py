@@ -351,35 +351,53 @@ async def _run_all_doctypes_search(page, date_from: str, date_to: str) -> list[d
     log.info("Leaving DocTypes=All to fetch every type in one search.")
 
     # Fill the date range. Confirmed IDs from the live portal:
-    #   From: <input id="RecordDateFrom" name="RecordDateFrom" ...>
-    #   To:   <input id="RecordDateTo"   name="RecordDateTo"   ...>
-    # The inputs default to "1/1/1977" as a placeholder, wrapped in a
-    # Telerik t-datepicker widget. The widget's picker-wrap overlays the
-    # input, so .click() times out waiting for stability. We use
-    # page.evaluate() to set the value directly and dispatch a change
-    # event so the widget's internal state updates.
+    #   <input id="RecordDateFrom" name="RecordDateFrom" ...>  (hidden backing)
+    #   <input id="RecordDateTo"   name="RecordDateTo"   ...>  (hidden backing)
+    # These are inside Telerik t-datepicker widgets. The USER-VISIBLE input
+    # is a sibling with class "t-input" -- so we set BOTH: the backing
+    # store via its id, and any visible t-input inside the same widget
+    # so the UI reflects the value. We use state="attached" because the
+    # backing input isn't visually displayed.
     try:
-        begin_sel = "input#RecordDateFrom"
-        end_sel   = "input#RecordDateTo"
+        await page.wait_for_selector(
+            "input#RecordDateFrom", state="attached", timeout=15_000
+        )
+        await page.wait_for_selector(
+            "input#RecordDateTo", state="attached", timeout=15_000
+        )
 
-        await page.wait_for_selector(begin_sel, timeout=15_000)
-        await page.wait_for_selector(end_sel,   timeout=15_000)
-
-        # JS-set the values and fire change events (Telerik listens for these).
+        # Set values via JS. Telerik t-datepicker listens for input/change
+        # on the backing input; the visible t-input is also updated so the
+        # user-facing display is in sync.
         await page.evaluate(
-            """([fromSel, toSel, fromVal, toVal]) => {
-                const setVal = (sel, val) => {
-                    const el = document.querySelector(sel);
-                    if (!el) return;
-                    el.value = val;
-                    el.dispatchEvent(new Event('input',  {bubbles: true}));
-                    el.dispatchEvent(new Event('change', {bubbles: true}));
-                    el.dispatchEvent(new Event('blur',   {bubbles: true}));
+            """([fromVal, toVal]) => {
+                const setField = (hiddenId, val) => {
+                    // Backing input (by id)
+                    const hidden = document.getElementById(hiddenId);
+                    if (hidden) {
+                        hidden.value = val;
+                        hidden.dispatchEvent(new Event('input',  {bubbles: true}));
+                        hidden.dispatchEvent(new Event('change', {bubbles: true}));
+                        hidden.dispatchEvent(new Event('blur',   {bubbles: true}));
+
+                        // Also update the sibling t-input inside the same
+                        // t-datepicker widget so the visible text matches.
+                        const widget = hidden.closest('.t-datepicker, .t-widget');
+                        if (widget) {
+                            const vis = widget.querySelector('input.t-input');
+                            if (vis && vis !== hidden) {
+                                vis.value = val;
+                                vis.dispatchEvent(new Event('input',  {bubbles: true}));
+                                vis.dispatchEvent(new Event('change', {bubbles: true}));
+                                vis.dispatchEvent(new Event('blur',   {bubbles: true}));
+                            }
+                        }
+                    }
                 };
-                setVal(fromSel, fromVal);
-                setVal(toSel,   toVal);
+                setField('RecordDateFrom', fromVal);
+                setField('RecordDateTo',   toVal);
             }""",
-            [begin_sel, end_sel, date_from, date_to],
+            [date_from, date_to],
         )
         await page.wait_for_timeout(500)
     except Exception as exc:
