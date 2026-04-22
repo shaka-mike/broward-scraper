@@ -353,31 +353,35 @@ async def _run_all_doctypes_search(page, date_from: str, date_to: str) -> list[d
     # Fill the date range. Confirmed IDs from the live portal:
     #   From: <input id="RecordDateFrom" name="RecordDateFrom" ...>
     #   To:   <input id="RecordDateTo"   name="RecordDateTo"   ...>
-    # The inputs default to "1/1/1977" as a placeholder value, so we
-    # must clear them before typing.
+    # The inputs default to "1/1/1977" as a placeholder, wrapped in a
+    # Telerik t-datepicker widget. The widget's picker-wrap overlays the
+    # input, so .click() times out waiting for stability. We use
+    # page.evaluate() to set the value directly and dispatch a change
+    # event so the widget's internal state updates.
     try:
-        begin = page.locator(
-            "input#RecordDateFrom, input[name='RecordDateFrom'], "
-            "input[id$='beginDateInput']"
-        ).first
-        end = page.locator(
-            "input#RecordDateTo, input[name='RecordDateTo'], "
-            "input[id$='endDateInput']"
-        ).first
+        begin_sel = "input#RecordDateFrom"
+        end_sel   = "input#RecordDateTo"
 
-        await begin.click()
-        await begin.press("Control+A")   # select existing text
-        await begin.press("Delete")
-        await begin.type(date_from, delay=30)
+        await page.wait_for_selector(begin_sel, timeout=15_000)
+        await page.wait_for_selector(end_sel,   timeout=15_000)
 
-        await end.click()
-        await end.press("Control+A")
-        await end.press("Delete")
-        await end.type(date_to, delay=30)
-
-        # Tab out so the widget commits the value.
-        await end.press("Tab")
-        await page.wait_for_timeout(300)
+        # JS-set the values and fire change events (Telerik listens for these).
+        await page.evaluate(
+            """([fromSel, toSel, fromVal, toVal]) => {
+                const setVal = (sel, val) => {
+                    const el = document.querySelector(sel);
+                    if (!el) return;
+                    el.value = val;
+                    el.dispatchEvent(new Event('input',  {bubbles: true}));
+                    el.dispatchEvent(new Event('change', {bubbles: true}));
+                    el.dispatchEvent(new Event('blur',   {bubbles: true}));
+                };
+                setVal(fromSel, fromVal);
+                setVal(toSel,   toVal);
+            }""",
+            [begin_sel, end_sel, date_from, date_to],
+        )
+        await page.wait_for_timeout(500)
     except Exception as exc:
         log.warning("Could not fill date range: %s", exc)
         return rows
