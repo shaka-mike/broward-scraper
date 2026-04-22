@@ -330,21 +330,42 @@ async def _run_all_doctypes_search(page, date_from: str, date_to: str) -> list[d
     log.info("Navigating to AcclaimWeb search page...")
     await page.goto(CLERK_SEARCH_URL, wait_until="domcontentloaded")
 
-    # Accept disclaimer / ADA modal if it appears.
-    try:
-        for sel in (
-            "input[type='button'][value*='Accept']",
-            "input[type='submit'][value*='Accept']",
-            "button:has-text('Accept')",
-            "a:has-text('Accept')",
-        ):
-            btn = page.locator(sel)
-            if await btn.count() > 0:
-                await btn.first.click()
-                await page.wait_for_load_state("domcontentloaded")
+    # Accept disclaimer / ADA modal if it appears. AcclaimWeb serves a
+    # disclaimer at the /Disclaimer URL on first visit; accepting it
+    # redirects to /search/SearchTypeDocType. Sometimes it appears as a
+    # modal instead; sometimes as a full-page interstitial.
+    for attempt in range(3):
+        try:
+            dismissed = False
+            for sel in (
+                "input[type='button'][value*='Accept']",
+                "input[type='submit'][value*='Accept']",
+                "input[type='button'][value*='Agree']",
+                "input[type='submit'][value*='Agree']",
+                "button:has-text('Accept')",
+                "button:has-text('Agree')",
+                "button:has-text('I Accept')",
+                "a:has-text('Accept')",
+                "a:has-text('Agree')",
+                "a:has-text('I Accept')",
+            ):
+                btn = page.locator(sel)
+                if await btn.count() > 0:
+                    await btn.first.click(timeout=5_000)
+                    await page.wait_for_load_state("domcontentloaded")
+                    dismissed = True
+                    log.info("Dismissed disclaimer via %r", sel)
+                    break
+            if not dismissed:
                 break
-    except Exception as exc:
-        log.debug("No disclaimer to dismiss: %s", exc)
+        except Exception as exc:
+            log.debug("Disclaimer dismiss attempt %d: %s", attempt + 1, exc)
+
+    # If the URL still points at a disclaimer page, force-navigate again.
+    current_url = page.url
+    if "disclaimer" in current_url.lower() or "/search" not in current_url.lower():
+        log.info("Still on %r -- navigating directly to search page.", current_url)
+        await page.goto(CLERK_SEARCH_URL, wait_until="domcontentloaded")
 
     # The DocTypes picker defaults to "All" (textarea#DocTypes has value "all").
     # We don't touch it -- "All" returns every doc type in the date range.
@@ -402,6 +423,26 @@ async def _run_all_doctypes_search(page, date_from: str, date_to: str) -> list[d
         await page.wait_for_timeout(500)
     except Exception as exc:
         log.warning("Could not fill date range: %s", exc)
+        # Diagnostic: what's actually on the page?
+        try:
+            log.info("DIAG current URL: %s", page.url)
+            from_count = await page.locator("input#RecordDateFrom").count()
+            to_count   = await page.locator("input#RecordDateTo").count()
+            log.info("DIAG #RecordDateFrom=%d  #RecordDateTo=%d", from_count, to_count)
+            # Any visible date-looking input we might be missing?
+            visible_inputs = await page.locator(
+                "input[type='text']:visible, input[id*='Date']:visible"
+            ).count()
+            log.info("DIAG visible-text/Date inputs on page: %d", visible_inputs)
+            title = await page.title()
+            log.info("DIAG page title: %r", title)
+            # Dump a 2000-char snippet of the body for inspection.
+            body_snippet = await page.evaluate(
+                "() => document.body ? document.body.innerText.substring(0, 2000) : ''"
+            )
+            log.info("DIAG body text (first 2000 chars): %s", body_snippet)
+        except Exception as diag_exc:
+            log.info("DIAG failed: %s", diag_exc)
         return rows
 
     # Click Search. The form is an Sys.Mvc.AsyncForm, so the page doesn't
