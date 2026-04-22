@@ -350,11 +350,20 @@ async def _run_all_doctypes_search(page, date_from: str, date_to: str) -> list[d
     # We don't touch it -- "All" returns every doc type in the date range.
     log.info("Leaving DocTypes=All to fetch every type in one search.")
 
-    # Fill the date range. Telerik RadDatePicker inputs; IDs end with
-    # 'beginDateInput' / 'endDateInput'.
+    # Fill the date range. Confirmed IDs from the live portal:
+    #   From: <input id="RecordDateFrom" name="RecordDateFrom" ...>
+    #   To:   <input id="RecordDateTo"   name="RecordDateTo"   ...>
+    # The inputs default to "1/1/1977" as a placeholder value, so we
+    # must clear them before typing.
     try:
-        begin = page.locator("input[id$='beginDateInput'], input[name$='beginDateInput']").first
-        end   = page.locator("input[id$='endDateInput'],   input[name$='endDateInput']").first
+        begin = page.locator(
+            "input#RecordDateFrom, input[name='RecordDateFrom'], "
+            "input[id$='beginDateInput']"
+        ).first
+        end = page.locator(
+            "input#RecordDateTo, input[name='RecordDateTo'], "
+            "input[id$='endDateInput']"
+        ).first
 
         await begin.click()
         await begin.press("Control+A")   # select existing text
