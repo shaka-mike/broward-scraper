@@ -28,3 +28,6 @@ test-results/
 # OS
 .DS_Store
 Thumbs.db
+
+# Large raw data - too big for GitHub, kept locally only
+data/fdor/

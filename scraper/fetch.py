@@ -912,6 +912,80 @@ class ParcelIndex:
         log.info("BCPA index ready: %d parcels, %d name variants",
                  self.record_count, len(self.by_name))
 
+    def load_fdor_csv(self, csv_path: Path) -> None:
+        """
+        Load the Florida Department of Revenue NAL (Name/Address/Legal) CSV.
+        Format: comma-delimited with quoted strings, one row per parcel.
+
+        Relevant columns:
+            OWN_NAME                              -> owner name
+            PHY_ADDR1, PHY_ADDR2, PHY_CITY,
+            PHY_ZIPCD                             -> property site address
+            OWN_ADDR1, OWN_ADDR2, OWN_CITY,
+            OWN_STATE, OWN_ZIPCD                  -> mailing address
+
+        File is large (~370 MB, ~750k rows). We stream row-by-row.
+        """
+        if not csv_path.exists():
+            return
+        import csv as _csv
+
+        log.info("Loading FDOR NAL CSV: %s", csv_path)
+        try:
+            # Increase field size limit -- FDOR legal descriptions can be huge.
+            try:
+                _csv.field_size_limit(10_000_000)
+            except OverflowError:
+                _csv.field_size_limit(2**31 - 1)
+
+            with open(csv_path, "r", encoding="utf-8", errors="replace",
+                     newline="") as fh:
+                reader = _csv.DictReader(fh)
+                for rec in reader:
+                    try:
+                        owner = (rec.get("OWN_NAME") or "").strip()
+                        if not owner:
+                            continue
+
+                        # Property site address: join ADDR1 + ADDR2 if both present.
+                        phy1 = (rec.get("PHY_ADDR1") or "").strip()
+                        phy2 = (rec.get("PHY_ADDR2") or "").strip()
+                        site_addr = " ".join(p for p in (phy1, phy2) if p)
+
+                        # Mailing address: same treatment.
+                        own1 = (rec.get("OWN_ADDR1") or "").strip()
+                        own2 = (rec.get("OWN_ADDR2") or "").strip()
+                        mail_addr = " ".join(p for p in (own1, own2) if p)
+
+                        parcel = {
+                            "owner":      owner,
+                            "site_addr":  site_addr,
+                            "site_city":  (rec.get("PHY_CITY") or "").strip(),
+                            "site_zip":   (rec.get("PHY_ZIPCD") or "").strip(),
+                            "mail_addr":  mail_addr,
+                            "mail_city":  (rec.get("OWN_CITY") or "").strip(),
+                            "mail_state": (rec.get("OWN_STATE") or "").strip(),
+                            "mail_zip":   (rec.get("OWN_ZIPCD") or "").strip(),
+                        }
+
+                        for variant in self.name_variants(owner):
+                            self.by_name.setdefault(variant, parcel)
+
+                        self.record_count += 1
+                        if self.record_count % 100_000 == 0:
+                            log.info("  ...indexed %d parcels", self.record_count)
+
+                    except Exception as row_exc:
+                        log.debug("Skipping bad NAL row: %s", row_exc)
+                        continue
+
+        except Exception as exc:
+            log.error("Failed to load FDOR NAL CSV: %s", exc)
+            return
+
+        log.info("FDOR NAL index ready: %d parcels, %d name variants",
+                 self.record_count, len(self.by_name))
+
     def lookup(self, raw_name: str) -> dict[str, str] | None:
         if not self.by_name or not raw_name:
             return None
@@ -1349,6 +1423,22 @@ async def run() -> int:
         parcels.load(BCPA_DBF_PATH)
     except Exception as exc:
         log.error("BCPA index build crashed: %s", exc)
+
+    # Fallback/primary: load FDOR NAL CSV if present. Shipped by Florida
+    # Department of Revenue at https://floridarevenue.com/property/Pages/DataPortal.aspx
+    # Landing at data/fdor/NAL*.csv. Works without dbfread.
+    if not parcels.by_name:
+        fdor_dir = REPO_ROOT / "data" / "fdor"
+        if fdor_dir.is_dir():
+            nal_csvs = sorted(fdor_dir.glob("NAL*.csv"))
+            for nal in nal_csvs:
+                try:
+                    parcels.load_fdor_csv(nal)
+                    # One NAL file is always complete -- stop at first.
+                    if parcels.by_name:
+                        break
+                except Exception as exc:
+                    log.error("FDOR NAL load crashed: %s", exc)
 
     # --- 3. Classify -> Lead, filter by date window, enrich ---------------
     window_iso = (datetime.now(timezone.utc) - timedelta(days=LOOKBACK_DAYS)) \
