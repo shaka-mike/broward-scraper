@@ -282,9 +282,11 @@ RESULTS_COLUMNS = [
 
 async def scrape_clerk_playwright(date_from: str, date_to: str) -> list[dict[str, str]]:
     """
-    Drive AcclaimWeb in headless Chromium. Runs ONE search with
-    DocTypes=All, then classifies locally. Returns raw row dicts.
-    Returns [] if Playwright is unavailable or the portal is unreachable.
+    Drive AcclaimWeb in headless Chromium. AcclaimWeb caps results at 10,000
+    per search and a full weekly DocType=All window in Broward typically
+    returns ~9,500 records -- right on the edge. To stay safely under the
+    cap, we split the window into 1-day slices and run one search per day,
+    merging results (deduped by InstrumentNumber).
     """
     try:
         from playwright.async_api import async_playwright, TimeoutError as PwTimeout
@@ -293,6 +295,24 @@ async def scrape_clerk_playwright(date_from: str, date_to: str) -> list[dict[str
         return []
 
     rows: list[dict[str, str]] = []
+
+    # Build the list of 1-day windows [(from, to), ...] spanning the target range.
+    try:
+        start_dt = datetime.strptime(date_from, "%m/%d/%Y")
+        end_dt   = datetime.strptime(date_to,   "%m/%d/%Y")
+    except ValueError:
+        log.error("Bad date range %s..%s", date_from, date_to)
+        return rows
+
+    day_windows: list[tuple[str, str]] = []
+    cur = start_dt
+    while cur <= end_dt:
+        d = cur.strftime("%m/%d/%Y")
+        day_windows.append((d, d))
+        cur += timedelta(days=1)
+
+    log.info("Window split into %d daily searches to stay under AcclaimWeb's 10k cap.",
+             len(day_windows))
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(
@@ -310,12 +330,23 @@ async def scrape_clerk_playwright(date_from: str, date_to: str) -> list[dict[str
         page = await context.new_page()
         page.set_default_timeout(PLAYWRIGHT_TIMEOUT_MS)
 
-        try:
-            rows = await _run_all_doctypes_search(page, date_from, date_to)
-        except PwTimeout as exc:
-            log.warning("AcclaimWeb search timed out: %s", exc)
-        except Exception as exc:
-            log.exception("AcclaimWeb search failed: %s", exc)
+        seen: set[str] = set()
+        for d_from, d_to in day_windows:
+            try:
+                day_rows = await _run_all_doctypes_search(page, d_from, d_to)
+                new_count = 0
+                for r in day_rows:
+                    inum = r.get("InstrumentNumber", "")
+                    if inum and inum not in seen:
+                        seen.add(inum)
+                        rows.append(r)
+                        new_count += 1
+                log.info("Day %s: %d rows (%d new; grand total %d)",
+                         d_from, len(day_rows), new_count, len(rows))
+            except PwTimeout as exc:
+                log.warning("Day %s timed out: %s", d_from, exc)
+            except Exception as exc:
+                log.exception("Day %s failed: %s", d_from, exc)
 
         await context.close()
         await browser.close()
@@ -330,42 +361,60 @@ async def _run_all_doctypes_search(page, date_from: str, date_to: str) -> list[d
     log.info("Navigating to AcclaimWeb search page...")
     await page.goto(CLERK_SEARCH_URL, wait_until="domcontentloaded")
 
-    # Accept disclaimer / ADA modal if it appears. AcclaimWeb serves a
-    # disclaimer at the /Disclaimer URL on first visit; accepting it
-    # redirects to /search/SearchTypeDocType. Sometimes it appears as a
-    # modal instead; sometimes as a full-page interstitial.
-    for attempt in range(3):
-        try:
-            dismissed = False
-            for sel in (
-                "input[type='button'][value*='Accept']",
-                "input[type='submit'][value*='Accept']",
-                "input[type='button'][value*='Agree']",
-                "input[type='submit'][value*='Agree']",
-                "button:has-text('Accept')",
-                "button:has-text('Agree')",
-                "button:has-text('I Accept')",
-                "a:has-text('Accept')",
-                "a:has-text('Agree')",
-                "a:has-text('I Accept')",
-            ):
-                btn = page.locator(sel)
-                if await btn.count() > 0:
-                    await btn.first.click(timeout=5_000)
-                    await page.wait_for_load_state("domcontentloaded")
-                    dismissed = True
-                    log.info("Dismissed disclaimer via %r", sel)
-                    break
-            if not dismissed:
-                break
-        except Exception as exc:
-            log.debug("Disclaimer dismiss attempt %d: %s", attempt + 1, exc)
+    # Disclaimer handling. Broward redirects all /search/* URLs to
+    # /AcclaimWeb/search/Disclaimer?st=... on first visit, and keeps
+    # sending you there until you submit the accept form. The button
+    # text varies across browsers / ADA modes -- could be "Accept",
+    # "I Accept", "Agree", "Continue", "Submit", or just an <input>
+    # with no text. The safest approach: if we're on the Disclaimer
+    # URL, iterate over every submit/button on the page and click
+    # whichever one causes a URL change to /SearchTypeDocType.
+    for attempt in range(5):
+        if "/disclaimer" not in page.url.lower():
+            break
+        log.info("On disclaimer page (attempt %d); trying to dismiss...", attempt + 1)
 
-    # If the URL still points at a disclaimer page, force-navigate again.
-    current_url = page.url
-    if "disclaimer" in current_url.lower() or "/search" not in current_url.lower():
-        log.info("Still on %r -- navigating directly to search page.", current_url)
-        await page.goto(CLERK_SEARCH_URL, wait_until="domcontentloaded")
+        # Snapshot all candidate "go forward" controls on the page.
+        candidate_selectors = [
+            "input[type='submit']",
+            "input[type='button']",
+            "button[type='submit']",
+            "button",
+            "a.button, a.btn",
+        ]
+        clicked_this_attempt = False
+        for sel in candidate_selectors:
+            handles = await page.locator(sel).all()
+            for h in handles:
+                try:
+                    # Grab identifying info for logging.
+                    val = (await h.get_attribute("value")) or ""
+                    txt = (await h.text_content()) or ""
+                    label = (val + " " + txt).strip()
+
+                    # Skip obvious "Decline" / "Cancel" / "Exit" buttons.
+                    if re.search(r"decline|cancel|exit|back|decline|no\b",
+                                 label, re.IGNORECASE):
+                        continue
+
+                    log.info("  clicking disclaimer control: %r", label or sel)
+                    await h.click(timeout=5_000)
+                    await page.wait_for_load_state("domcontentloaded", timeout=10_000)
+                    clicked_this_attempt = True
+                    break
+                except Exception as exc:
+                    log.debug("  click skip: %s", exc)
+                    continue
+            if clicked_this_attempt:
+                break
+
+        if not clicked_this_attempt:
+            log.info("  no clickable controls found; trying direct nav.")
+            await page.goto(CLERK_SEARCH_URL, wait_until="domcontentloaded")
+
+        await page.wait_for_timeout(500)
+
+    log.info("Post-disclaimer URL: %s", page.url)
 
     # The DocTypes picker defaults to "All" (textarea#DocTypes has value "all").
     # We don't touch it -- "All" returns every doc type in the date range.
@@ -470,17 +519,34 @@ async def _run_all_doctypes_search(page, date_from: str, date_to: str) -> list[d
 
     # Wait for the results grid to render. The grid container is #RsltsGrid;
     # when it contains <tbody><tr>, we have results.
+    # We also poll for AcclaimWeb's "maximum limit exceeded" error modal
+    # so we can bail early instead of waiting 45s for nothing.
+    grid_selector = (
+        "div#RsltsGrid table tbody tr, div.t-grid-content table tbody tr"
+    )
+    error_text_selector = "text=/maximum limit|exceeded the maximum|no records/i"
+
     try:
+        # First, wait briefly for either: a results row, or an error modal.
         await page.wait_for_selector(
-            "div#RsltsGrid table tbody tr, div.t-grid-content table tbody tr",
+            f"{grid_selector}, {error_text_selector}",
             timeout=PLAYWRIGHT_TIMEOUT_MS,
         )
     except Exception as exc:
         log.warning("Results grid never rendered: %s", exc)
-        # Maybe "no results" message instead.
-        html = await page.content()
-        if "no records" in html.lower() or "no results" in html.lower():
-            log.info("AcclaimWeb returned 'no records'.")
+        return rows
+
+    # Check if we hit the error modal (too many results for this day).
+    err = page.locator(error_text_selector)
+    if await err.count() > 0:
+        err_text = (await err.first.text_content()) or ""
+        log.warning("AcclaimWeb returned error: %s", err_text.strip()[:200])
+        return rows
+
+    # Also check "no records" explicitly (empty days -- e.g. weekends/holidays).
+    html_preview = await page.content()
+    if "no records" in html_preview.lower() and "RsltsGrid" not in html_preview:
+        log.info("No records returned for this window.")
         return rows
 
     # Page through every results page.
