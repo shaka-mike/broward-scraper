@@ -238,22 +238,52 @@ def with_retries(fn, *args, attempts: int = REQUEST_RETRIES,
 # CLERK PORTAL -- PLAYWRIGHT
 # =============================================================================
 #
-# AcclaimWeb is an ASP.NET WebForms app that uses aggressive anti-automation
-# features (Telerik RadGrid with __doPostBack pagination, heavy JS, and
-# occasional Cloudflare interstitials). Playwright handles all of it in
-# a real browser context.
+# AcclaimWeb is an ASP.NET MVC app using Telerik UI (t-combobox, t-grid,
+# t-grid-pager). The search form submits via Sys.Mvc.AsyncForm.
 #
-# Strategy:
+# Strategy (verified against live portal DOM):
 #   1. Launch headless Chromium.
-#   2. For each target doc type + date range, navigate to the search page,
-#      fill in the inputs, click Search.
-#   3. Scrape the rendered RadGrid, then click the pager "Next" button
-#      until it disables.
+#   2. Navigate to /AcclaimWeb/search/SearchTypeDocType.
+#   3. Dismiss any disclaimer/terms modal.
+#   4. Leave DocTypes as "All" (the default) -- returns every doc type
+#      in the date range. AcclaimWeb caps results at 10,000, which is
+#      well above a normal 7-day window (~9,500 rows in Broward).
+#   5. Fill in the Record Date range (beginDateInput / endDateInput).
+#   6. Click the Search button.
+#   7. Scrape the results grid at div#RsltsGrid table, then click
+#      t-grid-pager "Next" until disabled.
+#
+# Column order in the results grid is POSITIONAL (no <th> labels):
+#   [0] blank/selector   [1] DirectName        [2] IndirectName
+#   [3] RecordDate       [4] DocTypeDescription [5] InstrumentNumber
+#   [6] BookType         [7] BookPage           [8] DocLegalDescription
+#   [9] Consideration    [10] CaseNumber
+# (Order observed in live DOM; spec matches the CSV export field order.)
 # =============================================================================
+
+# Hard cap returned by AcclaimWeb per search.
+ACCLAIM_RESULT_CAP = 10_000
+
+# Positional column mapping for the results grid (no <th> tags).
+RESULTS_COLUMNS = [
+    None,                  # 0: row selector / blank
+    "DirectName",          # 1
+    "IndirectName",        # 2
+    "RecordDate",          # 3
+    "DocTypeDescription",  # 4
+    "InstrumentNumber",    # 5
+    "BookType",            # 6
+    "BookPage",            # 7
+    "DocLegalDescription", # 8
+    "Consideration",       # 9
+    "CaseNumber",          # 10
+]
+
 
 async def scrape_clerk_playwright(date_from: str, date_to: str) -> list[dict[str, str]]:
     """
-    Drive AcclaimWeb in a headless browser and return raw row dicts.
+    Drive AcclaimWeb in headless Chromium. Runs ONE search with
+    DocTypes=All, then classifies locally. Returns raw row dicts.
     Returns [] if Playwright is unavailable or the portal is unreachable.
     """
     try:
@@ -280,17 +310,12 @@ async def scrape_clerk_playwright(date_from: str, date_to: str) -> list[dict[str
         page = await context.new_page()
         page.set_default_timeout(PLAYWRIGHT_TIMEOUT_MS)
 
-        for doc_type_label in ALL_CLERK_DOC_TYPES:
-            log.info("Clerk search: %r (%s to %s)", doc_type_label, date_from, date_to)
-            try:
-                doc_rows = await _scrape_doc_type(page, doc_type_label, date_from, date_to)
-                rows.extend(doc_rows)
-                log.info("  collected %d rows (running total %d)",
-                         len(doc_rows), len(rows))
-            except PwTimeout as exc:
-                log.warning("Timeout for %r: %s", doc_type_label, exc)
-            except Exception as exc:
-                log.exception("Doc type %r failed: %s", doc_type_label, exc)
+        try:
+            rows = await _run_all_doctypes_search(page, date_from, date_to)
+        except PwTimeout as exc:
+            log.warning("AcclaimWeb search timed out: %s", exc)
+        except Exception as exc:
+            log.exception("AcclaimWeb search failed: %s", exc)
 
         await context.close()
         await browser.close()
@@ -298,80 +323,140 @@ async def scrape_clerk_playwright(date_from: str, date_to: str) -> list[dict[str
     return rows
 
 
-async def _scrape_doc_type(page, doc_type_label: str,
-                           date_from: str, date_to: str) -> list[dict[str, str]]:
-    """One doc-type search run, with pagination."""
+async def _run_all_doctypes_search(page, date_from: str, date_to: str) -> list[dict[str, str]]:
+    """Single search with DocTypes=All, paginated through every result page."""
     rows: list[dict[str, str]] = []
 
-    # Navigate fresh for each doc type so session state is clean.
+    log.info("Navigating to AcclaimWeb search page...")
     await page.goto(CLERK_SEARCH_URL, wait_until="domcontentloaded")
 
-    # The disclaimer / terms modal sometimes appears on first visit.
+    # Accept disclaimer / ADA modal if it appears.
     try:
-        agree_btn = page.locator(
-            "input[type='button'][value*='Accept'], "
-            "input[type='submit'][value*='Accept'], "
-            "button:has-text('Accept')"
-        )
-        if await agree_btn.count() > 0:
-            await agree_btn.first.click()
-            await page.wait_for_load_state("domcontentloaded")
-    except Exception:
-        pass
+        for sel in (
+            "input[type='button'][value*='Accept']",
+            "input[type='submit'][value*='Accept']",
+            "button:has-text('Accept')",
+            "a:has-text('Accept')",
+        ):
+            btn = page.locator(sel)
+            if await btn.count() > 0:
+                await btn.first.click()
+                await page.wait_for_load_state("domcontentloaded")
+                break
+    except Exception as exc:
+        log.debug("No disclaimer to dismiss: %s", exc)
 
-    # Fill the date range.
-    # Input IDs are server-generated; use partial-id selectors.
+    # The DocTypes picker defaults to "All" (textarea#DocTypes has value "all").
+    # We don't touch it -- "All" returns every doc type in the date range.
+    log.info("Leaving DocTypes=All to fetch every type in one search.")
+
+    # Fill the date range. Telerik RadDatePicker inputs; IDs end with
+    # 'beginDateInput' / 'endDateInput'.
     try:
-        await page.locator("input[id$='beginDateInput']").first.fill(date_from)
-        await page.locator("input[id$='endDateInput']").first.fill(date_to)
+        begin = page.locator("input[id$='beginDateInput'], input[name$='beginDateInput']").first
+        end   = page.locator("input[id$='endDateInput'],   input[name$='endDateInput']").first
+
+        await begin.click()
+        await begin.press("Control+A")   # select existing text
+        await begin.press("Delete")
+        await begin.type(date_from, delay=30)
+
+        await end.click()
+        await end.press("Control+A")
+        await end.press("Delete")
+        await end.type(date_to, delay=30)
+
+        # Tab out so the widget commits the value.
+        await end.press("Tab")
+        await page.wait_for_timeout(300)
     except Exception as exc:
         log.warning("Could not fill date range: %s", exc)
-
-    # Fill the doc-type picker. AcclaimWeb uses a Telerik RadComboBox --
-    # typing into its input filters the dropdown; we pick the first match.
-    try:
-        doc_combo = page.locator("input[id$='DocTypesInput'], input[id$='DocTypesInput_Input']").first
-        await doc_combo.click()
-        await doc_combo.fill(doc_type_label)
-        await page.wait_for_timeout(500)
-        # Press Enter to lock in the selection; fallback to clicking the dropdown item.
-        await doc_combo.press("Enter")
-    except Exception as exc:
-        log.warning("Could not set doc type %r: %s", doc_type_label, exc)
-
-    # Click Search.
-    try:
-        search_btn = page.locator(
-            "input[id$='btnSearch'], button:has-text('Search')"
-        ).first
-        await search_btn.click()
-        await page.wait_for_load_state("networkidle", timeout=PLAYWRIGHT_TIMEOUT_MS)
-    except Exception as exc:
-        log.warning("Search click failed: %s", exc)
         return rows
 
-    # Page through the results grid.
-    max_pages = 50
+    # Click Search. The form is an Sys.Mvc.AsyncForm, so the page doesn't
+    # navigate -- it replaces divResultsPrint / #RsltsGrid inline.
+    log.info("Submitting search (DocTypes=All, %s -> %s)...", date_from, date_to)
+    clicked = False
+    for sel in (
+        "input[type='submit'][value='Search']",
+        "button:has-text('Search')",
+        "input#btnSearch",
+        "input[id$='btnSearch']",
+        "input[name$='btnSearch']",
+    ):
+        btn = page.locator(sel)
+        if await btn.count() > 0:
+            try:
+                await btn.first.click()
+                clicked = True
+                break
+            except Exception:
+                continue
+    if not clicked:
+        log.error("Could not find a Search button on the page.")
+        return rows
+
+    # Wait for the results grid to render. The grid container is #RsltsGrid;
+    # when it contains <tbody><tr>, we have results.
+    try:
+        await page.wait_for_selector(
+            "div#RsltsGrid table tbody tr, div.t-grid-content table tbody tr",
+            timeout=PLAYWRIGHT_TIMEOUT_MS,
+        )
+    except Exception as exc:
+        log.warning("Results grid never rendered: %s", exc)
+        # Maybe "no results" message instead.
+        html = await page.content()
+        if "no records" in html.lower() or "no results" in html.lower():
+            log.info("AcclaimWeb returned 'no records'.")
+        return rows
+
+    # Page through every results page.
+    max_pages = 500
+    seen_instrument_ids: set[str] = set()
     for page_num in range(1, max_pages + 1):
         html = await page.content()
         page_rows = parse_clerk_results_html(html)
         if not page_rows:
             break
-        rows.extend(page_rows)
 
-        # Is there a Next pager link that's not disabled?
-        next_link = page.locator(
-            "a[title='Next Page']:not(.rgCurrentPage), "
-            "input[title='Next Page']:not([disabled])"
-        )
-        count = await next_link.count()
-        if count == 0:
+        new_count = 0
+        for r in page_rows:
+            inum = r.get("InstrumentNumber", "")
+            if inum and inum not in seen_instrument_ids:
+                seen_instrument_ids.add(inum)
+                rows.append(r)
+                new_count += 1
+
+        log.info("  page %d: %d rows (%d new; running total %d)",
+                 page_num, len(page_rows), new_count, len(rows))
+
+        # Protective cap -- AcclaimWeb caps at 10,000 anyway.
+        if len(rows) >= ACCLAIM_RESULT_CAP:
+            log.info("Hit AcclaimWeb's 10,000-record cap.")
             break
+        if new_count == 0:
+            # Pager didn't advance -- bail to avoid an infinite loop.
+            break
+
+        # Find + click the pager Next button. Telerik t-grid-pager uses an
+        # <a class="t-arrow-next"> or <input class="t-arrow-next"> inside
+        # div.t-grid-pager. When we're on the last page, the link carries
+        # class "t-state-disabled".
+        next_sel = (
+            "div.t-grid-pager a.t-arrow-next:not(.t-state-disabled), "
+            "div.t-grid-pager .t-icon.t-arrow-next:not(.t-state-disabled), "
+            "a[title='Go to the next page']:not(.t-state-disabled)"
+        )
         try:
-            await next_link.first.click()
-            await page.wait_for_load_state("networkidle", timeout=PLAYWRIGHT_TIMEOUT_MS)
+            nxt = page.locator(next_sel).first
+            if await nxt.count() == 0:
+                break
+            await nxt.click()
+            # Wait for the grid to refresh -- rows should change.
+            await page.wait_for_timeout(1500)
         except Exception as exc:
-            log.warning("Pagination stopped at page %d: %s", page_num, exc)
+            log.warning("Pagination stopped on page %d: %s", page_num, exc)
             break
 
     return rows
@@ -379,64 +464,50 @@ async def _scrape_doc_type(page, doc_type_label: str,
 
 def parse_clerk_results_html(html: str) -> list[dict[str, str]]:
     """
-    Parse the RadGrid results table. Column names come from the <th> row;
-    we normalize them to the Acclaim CSV-export field names so the rest of
-    the pipeline doesn't care whether the data came from Playwright or CSV.
+    Parse the AcclaimWeb results grid.
+
+    The grid is at div#RsltsGrid -> div.t-grid-content -> table -> tbody -> tr.
+    There are NO <th> headers -- columns are positional (see RESULTS_COLUMNS).
+    Rows alternate between no class and class="t-alt".
     """
     if not html:
         return []
     soup = BeautifulSoup(html, "lxml")
 
-    # The RadGrid master table has class 'rgMasterTable'.
-    table = soup.find("table", class_=re.compile(r"rgMasterTable"))
+    # Primary: the grid inside div#RsltsGrid.
+    container = soup.find("div", id="RsltsGrid") or soup.find("div", class_="t-grid-content")
+    table = container.find("table") if container else None
+
+    # Fallback: any <table> whose rows have ~11 <td>s in the expected shape.
     if table is None:
-        # Fallback: any table with the expected header cells.
         for t in soup.find_all("table"):
-            headers = [th.get_text(strip=True) for th in t.find_all("th")]
-            if headers and any(h in headers for h in (
-                "InstrumentNumber", "DocTypeDescription", "Instrument Number"
-            )):
+            sample_tr = t.find("tr")
+            if sample_tr and 10 <= len(sample_tr.find_all("td")) <= 13:
                 table = t
                 break
     if table is None:
         return []
 
-    # Header row mapping (Acclaim sometimes shows spaces in UI headers
-    # that correspond to the camelCase CSV export columns).
-    HEADER_ALIASES = {
-        "Direct Name":          "DirectName",
-        "Indirect Name":        "IndirectName",
-        "Record Date":          "RecordDate",
-        "Document Type":        "DocTypeDescription",
-        "Doc Type":             "DocTypeDescription",
-        "Instrument Number":    "InstrumentNumber",
-        "Instrument #":         "InstrumentNumber",
-        "Book Type":            "BookType",
-        "Book Page":            "BookPage",
-        "Legal Description":    "DocLegalDescription",
-        "Consideration":        "Consideration",
-        "Case Number":          "CaseNumber",
-        "Case #":                "CaseNumber",
-    }
-    raw_headers = [th.get_text(strip=True) for th in table.find_all("th")]
-    headers = [HEADER_ALIASES.get(h, h) for h in raw_headers]
-
     results: list[dict[str, str]] = []
     tbody = table.find("tbody") or table
     for tr in tbody.find_all("tr"):
         cells = tr.find_all("td")
-        if len(cells) < 4:
+        if len(cells) < len(RESULTS_COLUMNS):
             continue
+
         row: dict[str, str] = {}
         for i, td in enumerate(cells):
-            key = headers[i] if i < len(headers) else f"col_{i}"
+            key = RESULTS_COLUMNS[i] if i < len(RESULTS_COLUMNS) else None
+            if key is None:
+                continue
             row[key] = td.get_text(" ", strip=True)
-            # Capture any per-row detail link.
+            # If this cell has a link to the document detail, capture it.
             a = td.find("a", href=True)
-            if a and ("instrument" in a["href"].lower() or
-                      "document" in a["href"].lower() or
-                      "viewdoc" in a["href"].lower()):
-                row["__detail_href"] = urljoin(CLERK_BASE + "/", a["href"])
+            if a and not row.get("__detail_href"):
+                href = a["href"]
+                if href.startswith("/") or "AcclaimWeb" in href or "Instrument" in href:
+                    row["__detail_href"] = urljoin(CLERK_BASE + "/", href)
+
         if row.get("InstrumentNumber"):
             results.append(row)
     return results
