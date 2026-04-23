@@ -1,12 +1,12 @@
 {
-  "fetched_at": "2026-04-23T15:37:17Z",
+  "fetched_at": "2026-04-23T15:46:32Z",
   "source": "https://officialrecords.broward.org/AcclaimWeb",
   "date_range": {
     "from": "04/16/2026",
     "to": "04/23/2026"
   },
-  "total": 4617,
-  "with_address": 831,
+  "total": 4606,
+  "with_address": 820,
   "records": [
     {
       "doc_num": "120822959",
@@ -269,58 +269,6 @@
       "score": 70
     },
     {
-      "doc_num": "120818481",
-      "doc_type": "Final Judgment",
-      "filed": "2026-04-20",
-      "cat": "FJ",
-      "cat_label": "Final Judgment",
-      "owner": "SHERMAN VILLAS LLC",
-      "grantee": "PROVIDENT TRUST GROUP LLC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "5921 NE 5 AVE",
-      "prop_city": "OAKLAND PARK",
-      "prop_state": "FL",
-      "prop_zip": "33334",
-      "mail_address": "13767 SW 144 PKWY",
-      "mail_city": "OKEECHOBEE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "34974",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120818481",
-      "flags": [
-        "Judgment lien",
-        "LLC / corp owner",
-        "New this week"
-      ],
-      "score": 70
-    },
-    {
-      "doc_num": "120818481",
-      "doc_type": "Final Judgment",
-      "filed": "2026-04-20",
-      "cat": "FJ",
-      "cat_label": "Final Judgment",
-      "owner": "SHERMAN VILLAS LLC",
-      "grantee": "PROVIDENT TRUST GROUP LLC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "5921 NE 5 AVE",
-      "prop_city": "OAKLAND PARK",
-      "prop_state": "FL",
-      "prop_zip": "33334",
-      "mail_address": "13767 SW 144 PKWY",
-      "mail_city": "OKEECHOBEE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "34974",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120818481",
-      "flags": [
-        "Judgment lien",
-        "LLC / corp owner",
-        "New this week"
-      ],
-      "score": 70
-    },
-    {
       "doc_num": "120814657",
       "doc_type": "Lis Pendens",
       "filed": "2026-04-17",
@@ -486,14 +434,14 @@
       "grantee": "LAUDERDALE TOWER CONDOMINIUM ASSN INC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "2900 NE 30 ST #L-3",
-      "prop_city": "FORT LAUDERDALE",
+      "prop_address": "2500 N POWERLINE RD",
+      "prop_city": "POMPANO BEACH",
       "prop_state": "FL",
-      "prop_zip": "33306",
-      "mail_address": "2900 NE 30 ST #L-3",
-      "mail_city": "FORT LAUDERDALE",
+      "prop_zip": "33064",
+      "mail_address": "2500 N POWERLINE RD #4",
+      "mail_city": "POMPANO BEACH",
       "mail_state": "FLORIDA",
-      "mail_zip": "33306",
+      "mail_zip": "33069",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120811963",
       "flags": [
         "Judgment lien",
@@ -538,14 +486,14 @@
       "grantee": "LAUDERDALE TOWER CONDOMINIUM ASSN INC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "2900 NE 30 ST #L-3",
-      "prop_city": "FORT LAUDERDALE",
+      "prop_address": "2500 N POWERLINE RD",
+      "prop_city": "POMPANO BEACH",
       "prop_state": "FL",
-      "prop_zip": "33306",
-      "mail_address": "2900 NE 30 ST #L-3",
-      "mail_city": "FORT LAUDERDALE",
+      "prop_zip": "33064",
+      "mail_address": "2500 N POWERLINE RD #4",
+      "mail_city": "POMPANO BEACH",
       "mail_state": "FLORIDA",
-      "mail_zip": "33306",
+      "mail_zip": "33069",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120811963",
       "flags": [
         "Judgment lien",
@@ -3124,6 +3072,31 @@
       "score": 60
     },
     {
+      "doc_num": "120822489",
+      "doc_type": "Notice of Commencement",
+      "filed": "2026-04-22",
+      "cat": "NOC",
+      "cat_label": "Notice of Commencement",
+      "owner": "CROWN CASTLE SOUTH LLC",
+      "grantee": "DYNAMIC SOUTH",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "5340 NE 13 WAY",
+      "prop_city": "POMPANO BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33064",
+      "mail_address": "4017 WASHINGTON ROAD PMB 353",
+      "mail_city": "MCMURRAY",
+      "mail_state": "PENNSLYVANIA",
+      "mail_zip": "15317",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120822489",
+      "flags": [
+        "LLC / corp owner",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
       "doc_num": "120822490",
       "doc_type": "Lis Pendens",
       "filed": "2026-04-22",
@@ -3469,6 +3442,31 @@
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120823150",
       "flags": [
         "Probate / estate",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
+      "doc_num": "120823166",
+      "doc_type": "Lien",
+      "filed": "2026-04-22",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "BLOCK 40 PROPERTY LLC",
+      "grantee": "FALLAH CONSTRUCTIONS LLC",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "381 SE 20 AVE",
+      "prop_city": "DEERFIELD BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33441",
+      "mail_address": "802 SW 33 PL",
+      "mail_city": "BOYNTON BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33435",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120823166",
+      "flags": [
+        "LLC / corp owner",
         "New this week"
       ],
       "score": 60
@@ -4499,6 +4497,31 @@
       "score": 60
     },
     {
+      "doc_num": "120820071",
+      "doc_type": "Notice of Commencement",
+      "filed": "2026-04-21",
+      "cat": "NOC",
+      "cat_label": "Notice of Commencement",
+      "owner": "2201 FLORIDA LLC",
+      "grantee": "STORM SMART BUILDING SYSTEMS INC",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "3055 HARBOR DR #2201",
+      "prop_city": "FORT LAUDERDALE",
+      "prop_state": "FL",
+      "prop_zip": "33316",
+      "mail_address": "309 VIA LIDO SOUD",
+      "mail_city": "NEWPORT BEACH",
+      "mail_state": "CALIFORNIA",
+      "mail_zip": "92663",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820071",
+      "flags": [
+        "LLC / corp owner",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
       "doc_num": "120820137",
       "doc_type": "Probate",
       "filed": "2026-04-21",
@@ -4617,31 +4640,6 @@
       "mail_state": "NEW JERSEY",
       "mail_zip": "08610",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820269",
-      "flags": [
-        "Probate / estate",
-        "New this week"
-      ],
-      "score": 60
-    },
-    {
-      "doc_num": "120820438",
-      "doc_type": "Probate",
-      "filed": "2026-04-21",
-      "cat": "PRO",
-      "cat_label": "Probate",
-      "owner": "EDWARDS,VALERIE",
-      "grantee": "",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "2880 NE 14 ST #707",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33062",
-      "mail_address": "2880 NE 14 ST #707",
-      "mail_city": "POMPANO BEACH",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33062",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820438",
       "flags": [
         "Probate / estate",
         "New this week"
@@ -4933,40 +4931,15 @@
       "grantee": "WELLS FARGO BANK NA",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "620 NE 28 ST #209",
-      "prop_city": "WILTON MANORS",
+      "prop_address": "506 SW 19 ST #1-2",
+      "prop_city": "FORT LAUDERDALE",
       "prop_state": "FL",
-      "prop_zip": "33334",
-      "mail_address": "620 NE 28 ST #209",
-      "mail_city": "WILTON MANORS",
+      "prop_zip": "33315",
+      "mail_address": "506 SW 19 ST",
+      "mail_city": "FORT LAUDERDALE",
       "mail_state": "FLORIDA",
-      "mail_zip": "33334",
+      "mail_zip": "33315",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120821171",
-      "flags": [
-        "Judgment lien",
-        "New this week"
-      ],
-      "score": 60
-    },
-    {
-      "doc_num": "120821246",
-      "doc_type": "Final Judgment",
-      "filed": "2026-04-21",
-      "cat": "FJ",
-      "cat_label": "Final Judgment",
-      "owner": "MEDINA,JOSE",
-      "grantee": "LVNV FUNDING LLC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "3451 NE 14 AVE",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33064",
-      "mail_address": "3451 NE 14 AVE",
-      "mail_city": "POMPANO BEACH",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33064",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120821246",
       "flags": [
         "Judgment lien",
         "New this week"
@@ -5499,6 +5472,31 @@
       "score": 60
     },
     {
+      "doc_num": "120820071",
+      "doc_type": "Notice of Commencement",
+      "filed": "2026-04-21",
+      "cat": "NOC",
+      "cat_label": "Notice of Commencement",
+      "owner": "2201 FLORIDA LLC",
+      "grantee": "STORM SMART BUILDING SYSTEMS INC",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "3055 HARBOR DR #2201",
+      "prop_city": "FORT LAUDERDALE",
+      "prop_state": "FL",
+      "prop_zip": "33316",
+      "mail_address": "309 VIA LIDO SOUD",
+      "mail_city": "NEWPORT BEACH",
+      "mail_state": "CALIFORNIA",
+      "mail_zip": "92663",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820071",
+      "flags": [
+        "LLC / corp owner",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
       "doc_num": "120820137",
       "doc_type": "Probate",
       "filed": "2026-04-21",
@@ -5617,31 +5615,6 @@
       "mail_state": "NEW JERSEY",
       "mail_zip": "08610",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820269",
-      "flags": [
-        "Probate / estate",
-        "New this week"
-      ],
-      "score": 60
-    },
-    {
-      "doc_num": "120820438",
-      "doc_type": "Probate",
-      "filed": "2026-04-21",
-      "cat": "PRO",
-      "cat_label": "Probate",
-      "owner": "EDWARDS,VALERIE",
-      "grantee": "",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "2880 NE 14 ST #707",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33062",
-      "mail_address": "2880 NE 14 ST #707",
-      "mail_city": "POMPANO BEACH",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33062",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820438",
       "flags": [
         "Probate / estate",
         "New this week"
@@ -5933,40 +5906,15 @@
       "grantee": "WELLS FARGO BANK NA",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "620 NE 28 ST #209",
-      "prop_city": "WILTON MANORS",
+      "prop_address": "506 SW 19 ST #1-2",
+      "prop_city": "FORT LAUDERDALE",
       "prop_state": "FL",
-      "prop_zip": "33334",
-      "mail_address": "620 NE 28 ST #209",
-      "mail_city": "WILTON MANORS",
+      "prop_zip": "33315",
+      "mail_address": "506 SW 19 ST",
+      "mail_city": "FORT LAUDERDALE",
       "mail_state": "FLORIDA",
-      "mail_zip": "33334",
+      "mail_zip": "33315",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120821171",
-      "flags": [
-        "Judgment lien",
-        "New this week"
-      ],
-      "score": 60
-    },
-    {
-      "doc_num": "120821246",
-      "doc_type": "Final Judgment",
-      "filed": "2026-04-21",
-      "cat": "FJ",
-      "cat_label": "Final Judgment",
-      "owner": "MEDINA,JOSE",
-      "grantee": "LVNV FUNDING LLC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "3451 NE 14 AVE",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33064",
-      "mail_address": "3451 NE 14 AVE",
-      "mail_city": "POMPANO BEACH",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33064",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120821246",
       "flags": [
         "Judgment lien",
         "New this week"
@@ -6424,6 +6372,31 @@
       "score": 60
     },
     {
+      "doc_num": "120816718",
+      "doc_type": "Final Judgment",
+      "filed": "2026-04-20",
+      "cat": "FJ",
+      "cat_label": "Final Judgment",
+      "owner": "RODRIGUEZ,SONIA",
+      "grantee": "PORTFOLIO RECOVERY ASSOCIATES LLC",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "632 TRACE CIR #101",
+      "prop_city": "DEERFIELD BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33441",
+      "mail_address": "632 TIVOLI TRACE CIR #101",
+      "mail_city": "DEERFIELD BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33441",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120816718",
+      "flags": [
+        "Judgment lien",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
       "doc_num": "120816741",
       "doc_type": "Final Judgment",
       "filed": "2026-04-20",
@@ -6524,6 +6497,56 @@
       "score": 60
     },
     {
+      "doc_num": "120817006",
+      "doc_type": "Lien",
+      "filed": "2026-04-20",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "EAST DANIA BEACH BOULEVARD LLC",
+      "grantee": "DANIA BEACH CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "507 NW 1 WAY",
+      "prop_city": "DEERFIELD BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33441",
+      "mail_address": "4521 N FEDERAL HWY",
+      "mail_city": "POMPANO BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33069",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817006",
+      "flags": [
+        "LLC / corp owner",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
+      "doc_num": "120817017",
+      "doc_type": "Lien",
+      "filed": "2026-04-20",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "26 RESIDENCE LLC",
+      "grantee": "DANIA BEACH CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "4950 SW 26 AVE",
+      "prop_city": "DANIA BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33312",
+      "mail_address": "4031 SW 54 CT",
+      "mail_city": "DANIA BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33314",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817017",
+      "flags": [
+        "LLC / corp owner",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
       "doc_num": "120817063",
       "doc_type": "Lien",
       "filed": "2026-04-20",
@@ -6567,31 +6590,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33312",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817087",
-      "flags": [
-        "Judgment lien",
-        "New this week"
-      ],
-      "score": 60
-    },
-    {
-      "doc_num": "120817094",
-      "doc_type": "Final Judgment",
-      "filed": "2026-04-20",
-      "cat": "FJ",
-      "cat_label": "Final Judgment",
-      "owner": "RODRIGUEZ,LEONARDO",
-      "grantee": "MIDLAND CREDIT MANAGEMENT INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "2050 NE 39 ST #204S",
-      "prop_city": "LIGHTHOUSE POINT",
-      "prop_state": "FL",
-      "prop_zip": "33064",
-      "mail_address": "2050 NE 39 ST APT 204-S",
-      "mail_city": "LIGHTHOUSE POINT",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33064",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817094",
       "flags": [
         "Judgment lien",
         "New this week"
@@ -7119,6 +7117,31 @@
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120818423",
       "flags": [
         "Judgment lien",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
+      "doc_num": "120818451",
+      "doc_type": "Lien",
+      "filed": "2026-04-20",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "D&Q BROTHERS LLC",
+      "grantee": "MIRAMAR CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "2670 E SUNRISE BLVD #317",
+      "prop_city": "FORT LAUDERDALE",
+      "prop_state": "FL",
+      "prop_zip": "33304",
+      "mail_address": "2200 DIANA DR APT 216",
+      "mail_city": "HALLANDLE BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33009",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120818451",
+      "flags": [
+        "LLC / corp owner",
         "New this week"
       ],
       "score": 60
@@ -7524,6 +7547,31 @@
       "score": 60
     },
     {
+      "doc_num": "120816718",
+      "doc_type": "Final Judgment",
+      "filed": "2026-04-20",
+      "cat": "FJ",
+      "cat_label": "Final Judgment",
+      "owner": "RODRIGUEZ,SONIA",
+      "grantee": "PORTFOLIO RECOVERY ASSOCIATES LLC",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "632 TRACE CIR #101",
+      "prop_city": "DEERFIELD BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33441",
+      "mail_address": "632 TIVOLI TRACE CIR #101",
+      "mail_city": "DEERFIELD BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33441",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120816718",
+      "flags": [
+        "Judgment lien",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
       "doc_num": "120816741",
       "doc_type": "Final Judgment",
       "filed": "2026-04-20",
@@ -7624,6 +7672,56 @@
       "score": 60
     },
     {
+      "doc_num": "120817006",
+      "doc_type": "Lien",
+      "filed": "2026-04-20",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "EAST DANIA BEACH BOULEVARD LLC",
+      "grantee": "DANIA BEACH CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "507 NW 1 WAY",
+      "prop_city": "DEERFIELD BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33441",
+      "mail_address": "4521 N FEDERAL HWY",
+      "mail_city": "POMPANO BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33069",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817006",
+      "flags": [
+        "LLC / corp owner",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
+      "doc_num": "120817017",
+      "doc_type": "Lien",
+      "filed": "2026-04-20",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "26 RESIDENCE LLC",
+      "grantee": "DANIA BEACH CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "4950 SW 26 AVE",
+      "prop_city": "DANIA BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33312",
+      "mail_address": "4031 SW 54 CT",
+      "mail_city": "DANIA BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33314",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817017",
+      "flags": [
+        "LLC / corp owner",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
       "doc_num": "120817063",
       "doc_type": "Lien",
       "filed": "2026-04-20",
@@ -7667,31 +7765,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33312",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817087",
-      "flags": [
-        "Judgment lien",
-        "New this week"
-      ],
-      "score": 60
-    },
-    {
-      "doc_num": "120817094",
-      "doc_type": "Final Judgment",
-      "filed": "2026-04-20",
-      "cat": "FJ",
-      "cat_label": "Final Judgment",
-      "owner": "RODRIGUEZ,LEONARDO",
-      "grantee": "MIDLAND CREDIT MANAGEMENT INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "2050 NE 39 ST #204S",
-      "prop_city": "LIGHTHOUSE POINT",
-      "prop_state": "FL",
-      "prop_zip": "33064",
-      "mail_address": "2050 NE 39 ST APT 204-S",
-      "mail_city": "LIGHTHOUSE POINT",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33064",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817094",
       "flags": [
         "Judgment lien",
         "New this week"
@@ -8224,6 +8297,31 @@
       "score": 60
     },
     {
+      "doc_num": "120818451",
+      "doc_type": "Lien",
+      "filed": "2026-04-20",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "D&Q BROTHERS LLC",
+      "grantee": "MIRAMAR CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "2670 E SUNRISE BLVD #317",
+      "prop_city": "FORT LAUDERDALE",
+      "prop_state": "FL",
+      "prop_zip": "33304",
+      "mail_address": "2200 DIANA DR APT 216",
+      "mail_city": "HALLANDLE BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33009",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120818451",
+      "flags": [
+        "LLC / corp owner",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
       "doc_num": "120818609",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-20",
@@ -8433,14 +8531,14 @@
       "grantee": "ORACLE ELEVATOR HOLDCO INC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "401 N FORT LAUDERDALE BEACH BLVD",
-      "prop_city": "FORT LAUDERDALE",
+      "prop_address": "390 NE 30 ST #1-2",
+      "prop_city": "POMPANO BEACH",
       "prop_state": "FL",
-      "prop_zip": "33304",
-      "mail_address": "PO BOX A-3956",
-      "mail_city": "CHICAGO",
-      "mail_state": "ILLINOIS",
-      "mail_zip": "60690",
+      "prop_zip": "33064",
+      "mail_address": "290 174 ST #805",
+      "mail_city": "SUNNY ISLES BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33160",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813971",
       "flags": [
         "LLC / corp owner",
@@ -8883,7 +8981,7 @@
       "grantee": "BRANDCON LLC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "608 SW 16 CT",
+      "prop_address": "513 SW 13 ST",
       "prop_city": "FORT LAUDERDALE",
       "prop_state": "FL",
       "prop_zip": "33315",
@@ -9594,6 +9692,31 @@
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120816291",
       "flags": [
         "Probate / estate",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
+      "doc_num": "120816298",
+      "doc_type": "Final Judgment",
+      "filed": "2026-04-17",
+      "cat": "FJ",
+      "cat_label": "Final Judgment",
+      "owner": "GRANT,PATRICIA",
+      "grantee": "SYNCHRONY BANK",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "730 SW 14 ST",
+      "prop_city": "DEERFIELD BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33441",
+      "mail_address": "730 SW 14 ST",
+      "mail_city": "DEERFIELD BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33441",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120816298",
+      "flags": [
+        "Judgment lien",
         "New this week"
       ],
       "score": 60
@@ -9633,14 +9756,14 @@
       "grantee": "ORACLE ELEVATOR HOLDCO INC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "401 N FORT LAUDERDALE BEACH BLVD",
-      "prop_city": "FORT LAUDERDALE",
+      "prop_address": "390 NE 30 ST #1-2",
+      "prop_city": "POMPANO BEACH",
       "prop_state": "FL",
-      "prop_zip": "33304",
-      "mail_address": "PO BOX A-3956",
-      "mail_city": "CHICAGO",
-      "mail_state": "ILLINOIS",
-      "mail_zip": "60690",
+      "prop_zip": "33064",
+      "mail_address": "290 174 ST #805",
+      "mail_city": "SUNNY ISLES BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33160",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813971",
       "flags": [
         "LLC / corp owner",
@@ -10083,7 +10206,7 @@
       "grantee": "BRANDCON LLC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "608 SW 16 CT",
+      "prop_address": "513 SW 13 ST",
       "prop_city": "FORT LAUDERDALE",
       "prop_state": "FL",
       "prop_zip": "33315",
@@ -10794,6 +10917,31 @@
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120816291",
       "flags": [
         "Probate / estate",
+        "New this week"
+      ],
+      "score": 60
+    },
+    {
+      "doc_num": "120816298",
+      "doc_type": "Final Judgment",
+      "filed": "2026-04-17",
+      "cat": "FJ",
+      "cat_label": "Final Judgment",
+      "owner": "GRANT,PATRICIA",
+      "grantee": "SYNCHRONY BANK",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "730 SW 14 ST",
+      "prop_city": "DEERFIELD BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33441",
+      "mail_address": "730 SW 14 ST",
+      "mail_city": "DEERFIELD BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33441",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120816298",
+      "flags": [
+        "Judgment lien",
         "New this week"
       ],
       "score": 60
@@ -11883,14 +12031,14 @@
       "grantee": "DEERFIELD BEACH CITY",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "801-843 W SAMPLE RD",
+      "prop_address": "4338 NW 19 AVE",
       "prop_city": "DEERFIELD BEACH",
       "prop_state": "FL",
       "prop_zip": "33064",
-      "mail_address": "3840 N 38 AVE",
-      "mail_city": "HOLLYWOOD",
+      "mail_address": "1920 NW 44 ST",
+      "mail_city": "DEERFIELD BEACH",
       "mail_state": "FLORIDA",
-      "mail_zip": "33021",
+      "mail_zip": "33064",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813803",
       "flags": [
         "LLC / corp owner",
@@ -11949,49 +12097,24 @@
       "score": 60
     },
     {
-      "doc_num": "120813815",
-      "doc_type": "Notice of Commencement",
+      "doc_num": "120813833",
+      "doc_type": "Lien",
       "filed": "2026-04-16",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "COASTAL VII APTS INC",
-      "grantee": "MARZO ROOFING WEST PALM BEACH INC",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "JSK ZDG LLC",
+      "grantee": "SILVER THATCH ATLANTIC PLAZA CONDOMINIUM ASSN INC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "725 N RIVERSIDE DR",
+      "prop_address": "531 N OCEAN BLVD #1705",
       "prop_city": "POMPANO BEACH",
       "prop_state": "FL",
       "prop_zip": "33062",
-      "mail_address": "725 N RIVERSIDE DR #104",
+      "mail_address": "531 N OCEAN BLVD #1705",
       "mail_city": "POMPANO BEACH",
       "mail_state": "FLORIDA",
       "mail_zip": "33062",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813815",
-      "flags": [
-        "LLC / corp owner",
-        "New this week"
-      ],
-      "score": 60
-    },
-    {
-      "doc_num": "120813816",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-16",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "COASTAL VII APTS INC",
-      "grantee": "KENYAZ,STAN",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "725 N RIVERSIDE DR",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33062",
-      "mail_address": "725 N RIVERSIDE DR #104",
-      "mail_city": "POMPANO BEACH",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33062",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813816",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813833",
       "flags": [
         "LLC / corp owner",
         "New this week"
@@ -13058,14 +13181,14 @@
       "grantee": "DEERFIELD BEACH CITY",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "801-843 W SAMPLE RD",
+      "prop_address": "4338 NW 19 AVE",
       "prop_city": "DEERFIELD BEACH",
       "prop_state": "FL",
       "prop_zip": "33064",
-      "mail_address": "3840 N 38 AVE",
-      "mail_city": "HOLLYWOOD",
+      "mail_address": "1920 NW 44 ST",
+      "mail_city": "DEERFIELD BEACH",
       "mail_state": "FLORIDA",
-      "mail_zip": "33021",
+      "mail_zip": "33064",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813803",
       "flags": [
         "LLC / corp owner",
@@ -13124,49 +13247,24 @@
       "score": 60
     },
     {
-      "doc_num": "120813815",
-      "doc_type": "Notice of Commencement",
+      "doc_num": "120813833",
+      "doc_type": "Lien",
       "filed": "2026-04-16",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "COASTAL VII APTS INC",
-      "grantee": "MARZO ROOFING WEST PALM BEACH INC",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "JSK ZDG LLC",
+      "grantee": "SILVER THATCH ATLANTIC PLAZA CONDOMINIUM ASSN INC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "725 N RIVERSIDE DR",
+      "prop_address": "531 N OCEAN BLVD #1705",
       "prop_city": "POMPANO BEACH",
       "prop_state": "FL",
       "prop_zip": "33062",
-      "mail_address": "725 N RIVERSIDE DR #104",
+      "mail_address": "531 N OCEAN BLVD #1705",
       "mail_city": "POMPANO BEACH",
       "mail_state": "FLORIDA",
       "mail_zip": "33062",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813815",
-      "flags": [
-        "LLC / corp owner",
-        "New this week"
-      ],
-      "score": 60
-    },
-    {
-      "doc_num": "120813816",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-16",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "COASTAL VII APTS INC",
-      "grantee": "KENYAZ,STAN",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "725 N RIVERSIDE DR",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33062",
-      "mail_address": "725 N RIVERSIDE DR #104",
-      "mail_city": "POMPANO BEACH",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33062",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813816",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813833",
       "flags": [
         "LLC / corp owner",
         "New this week"
@@ -86394,6 +86492,30 @@
       "score": 50
     },
     {
+      "doc_num": "120822410",
+      "doc_type": "Notice of Commencement",
+      "filed": "2026-04-22",
+      "cat": "NOC",
+      "cat_label": "Notice of Commencement",
+      "owner": "DETTMANN,RAYMOND",
+      "grantee": "LOWES HOME CENTERS LLC",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "1900 MIAMI RD",
+      "prop_city": "FORT LAUDERDALE",
+      "prop_state": "FL",
+      "prop_zip": "33316",
+      "mail_address": "1900 MIAMI RD",
+      "mail_city": "FORT LAUDERDALE",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33316",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120822410",
+      "flags": [
+        "New this week"
+      ],
+      "score": 50
+    },
+    {
       "doc_num": "120822412",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-22",
@@ -86874,6 +86996,30 @@
       "score": 50
     },
     {
+      "doc_num": "120823793",
+      "doc_type": "Lien",
+      "filed": "2026-04-22",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "MITCHELL,MARGARET",
+      "grantee": "MIRAMAR CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "1050 SE 14 PL #15B",
+      "prop_city": "FORT LAUDERDALE",
+      "prop_state": "FL",
+      "prop_zip": "33316",
+      "mail_address": "37 APELDORN DR",
+      "mail_city": "SCHENECTADY",
+      "mail_state": "NEW YORK",
+      "mail_zip": "12306",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120823793",
+      "flags": [
+        "New this week"
+      ],
+      "score": 50
+    },
+    {
       "doc_num": "120823804",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-22",
@@ -87204,30 +87350,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33060",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120824814",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
-      "doc_num": "120824823",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-22",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "BROWN,KIMBERLY ANN",
-      "grantee": "REPUBLIC WINDOW & DOORS",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1625 SE 10 AVE #701",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33316",
-      "mail_address": "1625 SE 10 AVE #701",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33316",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120824823",
       "flags": [
         "New this week"
       ],
@@ -87954,30 +88076,6 @@
       "score": 50
     },
     {
-      "doc_num": "120820988",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-21",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "MENDOZA,LUIS",
-      "grantee": "PALETZ ROOFING INSPECTIONS INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "3400 GALT OCEAN DR #1008S",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33308",
-      "mail_address": "3400 GALT OCEAN DR #1008S",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33308",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820988",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120820998",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-21",
@@ -87987,14 +88085,14 @@
       "grantee": "ARTISAN POOL DESIGN INC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "2727 NE 14 ST #1",
+      "prop_address": "3109-3111 NE 26 ST",
       "prop_city": "FORT LAUDERDALE",
       "prop_state": "FL",
-      "prop_zip": "33304",
-      "mail_address": "2727 NE 14 ST #1",
+      "prop_zip": "33308",
+      "mail_address": "3109 NE 26 ST",
       "mail_city": "FORT LAUDERDALE",
       "mail_state": "FLORIDA",
-      "mail_zip": "33304",
+      "mail_zip": "33308",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820998",
       "flags": [
         "New this week"
@@ -89010,30 +89108,6 @@
       "score": 50
     },
     {
-      "doc_num": "120820988",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-21",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "MENDOZA,LUIS",
-      "grantee": "PALETZ ROOFING INSPECTIONS INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "3400 GALT OCEAN DR #1008S",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33308",
-      "mail_address": "3400 GALT OCEAN DR #1008S",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33308",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820988",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120820998",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-21",
@@ -89043,14 +89117,14 @@
       "grantee": "ARTISAN POOL DESIGN INC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "2727 NE 14 ST #1",
+      "prop_address": "3109-3111 NE 26 ST",
       "prop_city": "FORT LAUDERDALE",
       "prop_state": "FL",
-      "prop_zip": "33304",
-      "mail_address": "2727 NE 14 ST #1",
+      "prop_zip": "33308",
+      "mail_address": "3109 NE 26 ST",
       "mail_city": "FORT LAUDERDALE",
       "mail_state": "FLORIDA",
-      "mail_zip": "33304",
+      "mail_zip": "33308",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120820998",
       "flags": [
         "New this week"
@@ -89523,14 +89597,14 @@
       "grantee": "GENEREVE CONSTRUCTION LLC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "356 NW 6 ST",
-      "prop_city": "DEERFIELD BEACH",
+      "prop_address": "1765 SW 37 WAY",
+      "prop_city": "FORT LAUDERDALE",
       "prop_state": "FL",
-      "prop_zip": "33441",
-      "mail_address": "356 NW 6 ST",
-      "mail_city": "DEERFIELD BEACH",
+      "prop_zip": "33312",
+      "mail_address": "1765 SW 37 WAY",
+      "mail_city": "FORT LAUDERDALE",
       "mail_state": "FLORIDA",
-      "mail_zip": "33441",
+      "mail_zip": "33312",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120816736",
       "flags": [
         "New this week"
@@ -89706,30 +89780,6 @@
       "score": 50
     },
     {
-      "doc_num": "120817181",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-20",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "MCCARTY,ROBYN",
-      "grantee": "SUN ELECTRIC WORKS LLC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "2430 NE 32 CT",
-      "prop_city": "LIGHTHOUSE POINT",
-      "prop_state": "FL",
-      "prop_zip": "33064",
-      "mail_address": "2430 NE 32 CT",
-      "mail_city": "LIGHTHOUSE POINT",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33064",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817181",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120817775",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-20",
@@ -89874,6 +89924,30 @@
       "score": 50
     },
     {
+      "doc_num": "120817970",
+      "doc_type": "Lien",
+      "filed": "2026-04-20",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "WOOD HUE CONDO ASSN INC",
+      "grantee": "LAUDERHILL CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "1570 NW 3 TER",
+      "prop_city": "POMPANO BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33060",
+      "mail_address": "23 SE 22 AVE",
+      "mail_city": "POMPANO BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33062",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817970",
+      "flags": [
+        "New this week"
+      ],
+      "score": 50
+    },
+    {
       "doc_num": "120818139",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-20",
@@ -89994,30 +90068,6 @@
       "score": 50
     },
     {
-      "doc_num": "120818425",
-      "doc_type": "Lien",
-      "filed": "2026-04-20",
-      "cat": "LIE",
-      "cat_label": "Lien",
-      "owner": "TORRES,GERARDO LUIS RUIZ",
-      "grantee": "MIRAMAR CITY",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1521 SW 36 WAY",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33312",
-      "mail_address": "1521 SW 36 WAY",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33312",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120818425",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120818438",
       "doc_type": "Lien",
       "filed": "2026-04-20",
@@ -90132,30 +90182,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33060",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120819099",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
-      "doc_num": "120819137",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-20",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "DYER,CAROL P",
-      "grantee": "FIVE STAR PAVERS POOL REMODELS INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1340 S OCEAN BLVD #805",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33062",
-      "mail_address": "100 PUBLIC SQ #600",
-      "mail_city": "CLEVELAND",
-      "mail_state": "OHIO",
-      "mail_zip": "44113",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120819137",
       "flags": [
         "New this week"
       ],
@@ -90291,14 +90317,14 @@
       "grantee": "GENEREVE CONSTRUCTION LLC",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "356 NW 6 ST",
-      "prop_city": "DEERFIELD BEACH",
+      "prop_address": "1765 SW 37 WAY",
+      "prop_city": "FORT LAUDERDALE",
       "prop_state": "FL",
-      "prop_zip": "33441",
-      "mail_address": "356 NW 6 ST",
-      "mail_city": "DEERFIELD BEACH",
+      "prop_zip": "33312",
+      "mail_address": "1765 SW 37 WAY",
+      "mail_city": "FORT LAUDERDALE",
       "mail_state": "FLORIDA",
-      "mail_zip": "33441",
+      "mail_zip": "33312",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120816736",
       "flags": [
         "New this week"
@@ -90474,30 +90500,6 @@
       "score": 50
     },
     {
-      "doc_num": "120817181",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-20",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "MCCARTY,ROBYN",
-      "grantee": "SUN ELECTRIC WORKS LLC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "2430 NE 32 CT",
-      "prop_city": "LIGHTHOUSE POINT",
-      "prop_state": "FL",
-      "prop_zip": "33064",
-      "mail_address": "2430 NE 32 CT",
-      "mail_city": "LIGHTHOUSE POINT",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33064",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817181",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120817775",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-20",
@@ -90642,6 +90644,30 @@
       "score": 50
     },
     {
+      "doc_num": "120817970",
+      "doc_type": "Lien",
+      "filed": "2026-04-20",
+      "cat": "LIE",
+      "cat_label": "Lien",
+      "owner": "WOOD HUE CONDO ASSN INC",
+      "grantee": "LAUDERHILL CITY",
+      "amount": 0.0,
+      "legal": "",
+      "prop_address": "1570 NW 3 TER",
+      "prop_city": "POMPANO BEACH",
+      "prop_state": "FL",
+      "prop_zip": "33060",
+      "mail_address": "23 SE 22 AVE",
+      "mail_city": "POMPANO BEACH",
+      "mail_state": "FLORIDA",
+      "mail_zip": "33062",
+      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120817970",
+      "flags": [
+        "New this week"
+      ],
+      "score": 50
+    },
+    {
       "doc_num": "120818139",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-20",
@@ -90762,30 +90788,6 @@
       "score": 50
     },
     {
-      "doc_num": "120818425",
-      "doc_type": "Lien",
-      "filed": "2026-04-20",
-      "cat": "LIE",
-      "cat_label": "Lien",
-      "owner": "TORRES,GERARDO LUIS RUIZ",
-      "grantee": "MIRAMAR CITY",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1521 SW 36 WAY",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33312",
-      "mail_address": "1521 SW 36 WAY",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33312",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120818425",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120818438",
       "doc_type": "Lien",
       "filed": "2026-04-20",
@@ -90900,30 +90902,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33060",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120819099",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
-      "doc_num": "120819137",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-20",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "DYER,CAROL P",
-      "grantee": "FIVE STAR PAVERS POOL REMODELS INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1340 S OCEAN BLVD #805",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33062",
-      "mail_address": "100 PUBLIC SQ #600",
-      "mail_city": "CLEVELAND",
-      "mail_state": "OHIO",
-      "mail_zip": "44113",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120819137",
       "flags": [
         "New this week"
       ],
@@ -93570,30 +93548,6 @@
       "score": 50
     },
     {
-      "doc_num": "120812187",
-      "doc_type": "Lien",
-      "filed": "2026-04-16",
-      "cat": "LIE",
-      "cat_label": "Lien",
-      "owner": "ROBINSON,KENNETH SR",
-      "grantee": "MIRAMAR CITY",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "2801 NE 24 ST",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33305",
-      "mail_address": "2801 NE 24 ST",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33305",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120812187",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120812204",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-16",
@@ -93738,30 +93692,6 @@
       "score": 50
     },
     {
-      "doc_num": "120812493",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-16",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "SALMERON,JOSE L",
-      "grantee": "SOLAR VOLT INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "509 SE 23 ST #1-3",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33316",
-      "mail_address": "PO BOX 22544",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33335",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120812493",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120812612",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-16",
@@ -93780,30 +93710,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33312",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120812612",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
-      "doc_num": "120812638",
-      "doc_type": "Lien",
-      "filed": "2026-04-16",
-      "cat": "LIE",
-      "cat_label": "Lien",
-      "owner": "TORRES,GERARDO LUIS RUIZ",
-      "grantee": "MIRAMAR CITY",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1521 SW 36 WAY",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33312",
-      "mail_address": "1521 SW 36 WAY",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33312",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120812638",
       "flags": [
         "New this week"
       ],
@@ -94170,30 +94076,6 @@
       "score": 50
     },
     {
-      "doc_num": "120813297",
-      "doc_type": "Lien",
-      "filed": "2026-04-16",
-      "cat": "LIE",
-      "cat_label": "Lien",
-      "owner": "TORRES,GERARDO LUIS RUIZ",
-      "grantee": "MIRAMAR CITY",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1521 SW 36 WAY",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33312",
-      "mail_address": "1521 SW 36 WAY",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33312",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813297",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120813327",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-16",
@@ -94236,30 +94118,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33064",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813352",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
-      "doc_num": "120813445",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-16",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "SMITH,GERALD",
-      "grantee": "EMBICK ENTERPRISES INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "414 NW 10 AVE",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33060",
-      "mail_address": "414 NW 10 AVE",
-      "mail_city": "POMPANO BEACH",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33060",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813445",
       "flags": [
         "New this week"
       ],
@@ -94491,10 +94349,10 @@
       "grantee": "OWNER/BUILDER",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "829 SW 10 TER",
-      "prop_city": "FORT LAUDERDALE",
+      "prop_address": "322 N FEDERAL HWY #230",
+      "prop_city": "DEERFIELD BEACH",
       "prop_state": "FL",
-      "prop_zip": "33315",
+      "prop_zip": "33441",
       "mail_address": "829 SW 10 TER",
       "mail_city": "FORT LAUDERDALE",
       "mail_state": "FLORIDA",
@@ -94890,30 +94748,6 @@
       "score": 50
     },
     {
-      "doc_num": "120812187",
-      "doc_type": "Lien",
-      "filed": "2026-04-16",
-      "cat": "LIE",
-      "cat_label": "Lien",
-      "owner": "ROBINSON,KENNETH SR",
-      "grantee": "MIRAMAR CITY",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "2801 NE 24 ST",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33305",
-      "mail_address": "2801 NE 24 ST",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33305",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120812187",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120812204",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-16",
@@ -95058,30 +94892,6 @@
       "score": 50
     },
     {
-      "doc_num": "120812493",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-16",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "SALMERON,JOSE L",
-      "grantee": "SOLAR VOLT INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "509 SE 23 ST #1-3",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33316",
-      "mail_address": "PO BOX 22544",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33335",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120812493",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120812612",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-16",
@@ -95100,30 +94910,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33312",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120812612",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
-      "doc_num": "120812638",
-      "doc_type": "Lien",
-      "filed": "2026-04-16",
-      "cat": "LIE",
-      "cat_label": "Lien",
-      "owner": "TORRES,GERARDO LUIS RUIZ",
-      "grantee": "MIRAMAR CITY",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1521 SW 36 WAY",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33312",
-      "mail_address": "1521 SW 36 WAY",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33312",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120812638",
       "flags": [
         "New this week"
       ],
@@ -95490,30 +95276,6 @@
       "score": 50
     },
     {
-      "doc_num": "120813297",
-      "doc_type": "Lien",
-      "filed": "2026-04-16",
-      "cat": "LIE",
-      "cat_label": "Lien",
-      "owner": "TORRES,GERARDO LUIS RUIZ",
-      "grantee": "MIRAMAR CITY",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "1521 SW 36 WAY",
-      "prop_city": "FORT LAUDERDALE",
-      "prop_state": "FL",
-      "prop_zip": "33312",
-      "mail_address": "1521 SW 36 WAY",
-      "mail_city": "FORT LAUDERDALE",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33312",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813297",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
       "doc_num": "120813327",
       "doc_type": "Notice of Commencement",
       "filed": "2026-04-16",
@@ -95556,30 +95318,6 @@
       "mail_state": "FLORIDA",
       "mail_zip": "33064",
       "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813352",
-      "flags": [
-        "New this week"
-      ],
-      "score": 50
-    },
-    {
-      "doc_num": "120813445",
-      "doc_type": "Notice of Commencement",
-      "filed": "2026-04-16",
-      "cat": "NOC",
-      "cat_label": "Notice of Commencement",
-      "owner": "SMITH,GERALD",
-      "grantee": "EMBICK ENTERPRISES INC",
-      "amount": 0.0,
-      "legal": "",
-      "prop_address": "414 NW 10 AVE",
-      "prop_city": "POMPANO BEACH",
-      "prop_state": "FL",
-      "prop_zip": "33060",
-      "mail_address": "414 NW 10 AVE",
-      "mail_city": "POMPANO BEACH",
-      "mail_state": "FLORIDA",
-      "mail_zip": "33060",
-      "clerk_url": "https://officialrecords.broward.org/AcclaimWeb/details/120813445",
       "flags": [
         "New this week"
       ],
@@ -95811,10 +95549,10 @@
       "grantee": "OWNER/BUILDER",
       "amount": 0.0,
       "legal": "",
-      "prop_address": "829 SW 10 TER",
-      "prop_city": "FORT LAUDERDALE",
+      "prop_address": "322 N FEDERAL HWY #230",
+      "prop_city": "DEERFIELD BEACH",
       "prop_state": "FL",
-      "prop_zip": "33315",
+      "prop_zip": "33441",
       "mail_address": "829 SW 10 TER",
       "mail_city": "FORT LAUDERDALE",
       "mail_state": "FLORIDA",
