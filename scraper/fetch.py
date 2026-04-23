@@ -64,6 +64,29 @@ BCPA_POSTBACK  = os.environ.get("BCPA_POSTBACK", "")  # __EVENTTARGET value
 # Lookback window.
 LOOKBACK_DAYS = int(os.environ.get("LOOKBACK_DAYS", "7"))
 
+# Geographic filter. Only keep leads whose property zip (from the FDOR NAL
+# parcel enrichment) is in this set. Leads without an enriched address are
+# ALSO kept -- they might still be in-market, we just can't confirm from the
+# owner-name match alone (useful for skip tracing / cold-calling).
+# To disable the filter entirely, set this to an empty set.
+# Override at runtime with env var TARGET_ZIPS="33060,33062,..." if desired.
+_DEFAULT_TARGET_ZIPS = {
+    # Fort Lauderdale core
+    "33301", "33304", "33305", "33306", "33307", "33308",
+    "33312", "33315", "33316",
+    # Oakland Park
+    "33334",
+    # Pompano Beach
+    "33060", "33062", "33064",
+    # Deerfield Beach
+    "33441",
+}
+_zip_env = os.environ.get("TARGET_ZIPS", "").strip()
+if _zip_env:
+    TARGET_ZIPS = {z.strip() for z in _zip_env.split(",") if z.strip()}
+else:
+    TARGET_ZIPS = _DEFAULT_TARGET_ZIPS
+
 # Target lead types. The AcclaimWeb doc-type picker uses long English labels;
 # each internal `cat` maps to 1+ label substrings plus optional keyword rules
 # applied against the legal description / case number.
@@ -1444,6 +1467,7 @@ async def run() -> int:
     window_iso = (datetime.now(timezone.utc) - timedelta(days=LOOKBACK_DAYS)) \
         .strftime("%Y-%m-%d")
     leads: list[Lead] = []
+    filtered_out_of_zip = 0
     for row in raw_rows:
         try:
             lead = row_to_lead(row)
@@ -1452,10 +1476,25 @@ async def run() -> int:
             if lead.filed and lead.filed < window_iso:
                 continue
             enrich_with_parcel(lead, parcels)
+
+            # Geographic filter (Option B+i):
+            # - If we have a property zip, keep only when in TARGET_ZIPS.
+            # - If the lead has no zip (enrichment miss), keep it -- can't
+            #   confirm out-of-market, useful for skip tracing.
+            if TARGET_ZIPS:
+                p_zip = (lead.prop_zip or "").strip()[:5]
+                if p_zip and p_zip not in TARGET_ZIPS:
+                    filtered_out_of_zip += 1
+                    continue
+
             leads.append(lead)
         except Exception as exc:
             log.warning("Row failed: %s", exc)
 
+    if TARGET_ZIPS:
+        log.info("Zip filter: kept %d leads (dropped %d outside %d target zips; "
+                 "leads with no enriched address are kept)",
+                 len(leads), filtered_out_of_zip, len(TARGET_ZIPS))
     log.info("Classified target leads: %d", len(leads))
 
     # --- 4. Flags + score -------------------------------------------------
