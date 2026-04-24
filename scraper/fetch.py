@@ -219,9 +219,24 @@ SCORE_NEW_THIS_WEEK = 5
 SCORE_CONF_HIGH   = 20   # Exact name variant -> verified owner
 SCORE_CONF_MEDIUM = 10   # 3-word prefix, single parcel
 SCORE_CONF_LOW    = 3    # 2-word prefix, could be wrong person
-# Strongest motivation signal: active foreclosure / lis pendens.
-# Adds on top of the flag bonus.
-SCORE_CAT_LP_NOFC_BONUS = 10
+# Per-category score adjustments. LP/NOFC are distressed homeowners --
+# our highest-value leads. PRO (probate) is also strong -- heirs often
+# want to sell quickly. NOC (Notice of Commencement) is commercial
+# developers pulling permits -- NOT motivated sellers, usually
+# investors buying to build. RELLP is a resolved foreclosure, which
+# means the seller worked it out and is LESS motivated.
+SCORE_CAT_BONUS: dict[str, int] = {
+    "LP":    15,   # Active lis pendens -- imminent foreclosure
+    "NOFC":  15,   # Notice of foreclosure -- same urgency
+    "PALIE": 10,   # Property tax lien -- cash distress
+    "PRO":    8,   # Probate -- motivated heirs
+    "NOC":   -5,   # Commercial permit pull -- usually NOT a seller
+    "RELLP": -10,  # Released lis pendens -- foreclosure resolved
+}
+# Stacked-filings bonus: same owner+address across multiple filings
+# in the same week is a stronger motivation signal than a single
+# filing. Matches the course's "record stacking" concept.
+SCORE_STACK_PER_EXTRA = 5
 # Legacy: generic "has address" flat bonus (kept for backward-compat
 # only; only used when match_confidence is unknown).
 SCORE_HAS_ADDRESS = 5
@@ -1516,9 +1531,8 @@ def score_lead(lead: Lead) -> int:
     if "Lis pendens" in lead.flags and "Pre-foreclosure" in lead.flags:
         score += SCORE_LP_FC_COMBO
 
-    # High-value category bonus: active foreclosure activity.
-    if lead.cat in ("LP", "NOFC"):
-        score += SCORE_CAT_LP_NOFC_BONUS
+    # Category bonus/penalty (see SCORE_CAT_BONUS rationale).
+    score += SCORE_CAT_BONUS.get(lead.cat, 0)
 
     # Amount tiers (apply the bigger one only)
     if lead.amount > 100_000:
@@ -1549,6 +1563,86 @@ def score_lead(lead: Lead) -> int:
 # =============================================================================
 # OUTPUT: records.json (dashboard + data copies)
 # =============================================================================
+
+def stack_leads(leads: list[Lead]) -> list[Lead]:
+    """
+    Collapse multiple filings for the same (owner, property) into a single
+    stacked lead. Multi-filing within a week on the same property is a
+    STRONGER motivation signal, not a duplicate to discard -- so we merge
+    the evidence and bump the score.
+
+    Keying is tolerant: we match on normalized owner name + normalized
+    property address. Leads with no property address can't be cleanly
+    stacked, so we key them by (normalized_owner, doc_num) which keeps
+    them separate.
+
+    Each stacked lead keeps:
+      - Highest-priority cat (LP > NOFC > PALIE > PRO > NOC > RELLP)
+      - Union of all flags, plus a "Stacked Nx" flag for visibility
+      - Concatenated doc_nums separated by " | " for reference
+      - The stack-bonus added to the max single-lead score
+    """
+    # Category priority for picking the "primary" cat when a group has mixed.
+    CAT_PRIORITY = {"LP": 0, "NOFC": 1, "PALIE": 2, "PRO": 3, "NOC": 4, "RELLP": 5}
+
+    def norm_key(s: str) -> str:
+        if not s:
+            return ""
+        return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", "", s.upper())).strip()
+
+    groups: dict[tuple[str, str], list[Lead]] = {}
+    for lead in leads:
+        owner_key = norm_key(lead.owner)
+        addr_key  = norm_key(lead.prop_address)
+        if addr_key:
+            key = (owner_key, addr_key)
+        else:
+            # No property address -> don't collapse with anything else.
+            key = (owner_key, lead.doc_num)
+        groups.setdefault(key, []).append(lead)
+
+    merged: list[Lead] = []
+    for (_, _), group in groups.items():
+        if len(group) == 1:
+            merged.append(group[0])
+            continue
+        # Sort by cat priority first, then by score desc, so "primary" is
+        # the most-serious filing.
+        group.sort(key=lambda l: (CAT_PRIORITY.get(l.cat, 99), -l.score))
+        primary = group[0]
+        extras  = group[1:]
+
+        # Union the flags (preserve order; add a stacking marker).
+        seen_flags: set[str] = set()
+        all_flags: list[str] = []
+        for l in group:
+            for f in l.flags:
+                if f not in seen_flags:
+                    seen_flags.add(f)
+                    all_flags.append(f)
+        all_flags.append(f"Stacked x{len(group)}")
+
+        # Concatenate doc_nums for the reference trail.
+        all_docs = " | ".join(l.doc_num for l in group if l.doc_num)
+
+        # Stack bonus on top of the already-best score.
+        best_score = max(l.score for l in group)
+        stacked_score = min(100, best_score + SCORE_STACK_PER_EXTRA * len(extras))
+
+        primary.flags    = all_flags
+        primary.doc_num  = all_docs
+        primary.score    = stacked_score
+        # Preserve the most informative amount / cat_label / clerk_url
+        # from the group -- use the max amount and the primary's labels.
+        max_amount = max((l.amount or 0) for l in group)
+        if max_amount:
+            primary.amount = max_amount
+        merged.append(primary)
+
+    # Sort merged list by score desc so the dashboard shows hot first.
+    merged.sort(key=lambda l: -l.score)
+    return merged
+
 
 def write_records_json(leads: list[Lead], date_from: str, date_to: str) -> None:
     """Write the records.json payload to both dashboard/ and data/."""
@@ -1782,6 +1876,13 @@ async def run() -> int:
         except Exception as exc:
             log.warning("Scoring failed for %s: %s", l.doc_num, exc)
             l.score = SCORE_BASE
+
+    # --- 4b. Stack duplicates (same owner + same property) ----------------
+    pre_stack = len(leads)
+    leads = stack_leads(leads)
+    if pre_stack != len(leads):
+        log.info("Stacked duplicates: %d filings -> %d unique leads "
+                 "(merged %d)", pre_stack, len(leads), pre_stack - len(leads))
 
     # Sort by score desc, filed desc
     leads.sort(key=lambda x: (x.score, x.filed), reverse=True)
