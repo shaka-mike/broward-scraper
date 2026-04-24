@@ -170,11 +170,11 @@ _ALL_LEAD_TYPES: list[dict[str, Any]] = [
     },
 ]
 
-# Geographic / doc-type filter flag. When PROPERTY_ONLY=1, we drop the lead
-# types whose defendants often don't own the referenced property (generic
-# liens, final judgments for credit-card debt, etc.). This raises the
-# address-match fill rate dramatically -- the kept set is property-tied by
-# definition.
+# Geographic / doc-type filter flag. When PROPERTY_ONLY=1 (default), we drop
+# the lead types whose defendants often don't own the referenced property
+# (generic liens, final judgments for credit-card debt, etc.). This raises
+# the address-match fill rate dramatically -- the kept set is property-tied
+# by definition. Set PROPERTY_ONLY=0 to restore the full set.
 PROPERTY_ONLY = os.environ.get("PROPERTY_ONLY", "1").strip().lower() in (
     "1", "true", "yes", "on",
 )
@@ -212,6 +212,18 @@ SCORE_LP_FC_COMBO = 20
 SCORE_AMOUNT_OVER_100K = 15
 SCORE_AMOUNT_OVER_50K = 10
 SCORE_NEW_THIS_WEEK = 5
+# Tiered confidence bonuses -- a HIGH-confidence parcel match on a
+# real name is much stronger evidence of a mailable lead than the
+# old flat "+5 has address" bonus. Matches the course's "HIGH / MEDIUM
+# / LOW" confidence tiers.
+SCORE_CONF_HIGH   = 20   # Exact name variant -> verified owner
+SCORE_CONF_MEDIUM = 10   # 3-word prefix, single parcel
+SCORE_CONF_LOW    = 3    # 2-word prefix, could be wrong person
+# Strongest motivation signal: active foreclosure / lis pendens.
+# Adds on top of the flag bonus.
+SCORE_CAT_LP_NOFC_BONUS = 10
+# Legacy: generic "has address" flat bonus (kept for backward-compat
+# only; only used when match_confidence is unknown).
 SCORE_HAS_ADDRESS = 5
 
 logging.basicConfig(
@@ -719,8 +731,17 @@ def parse_clerk_results_html(html: str) -> list[dict[str, str]]:
 # prior export step or, in practice, by committing a nightly dump.
 
 def load_clerk_csv_fallback(csv_dir: Path) -> list[dict[str, str]]:
-    """Load any SearchResults*.csv files from csv_dir."""
+    """
+    Load any SearchResults*.csv files from csv_dir.
+
+    Dedupes by InstrumentNumber across files -- users commonly export
+    overlapping date ranges (e.g. one CSV per week with a day of overlap),
+    so the same filing shows up in multiple CSVs. Keep only the first hit
+    of each instrument number.
+    """
     rows: list[dict[str, str]] = []
+    seen_instruments: set[str] = set()
+    dup_count = 0
     if not csv_dir.is_dir():
         return rows
     for path in sorted(csv_dir.glob("SearchResults*.csv")):
@@ -728,9 +749,17 @@ def load_clerk_csv_fallback(csv_dir: Path) -> list[dict[str, str]]:
         try:
             with path.open(encoding="utf-8-sig", newline="") as f:
                 for r in csv.DictReader(f):
+                    inum = (r.get("InstrumentNumber") or "").strip()
+                    if inum:
+                        if inum in seen_instruments:
+                            dup_count += 1
+                            continue
+                        seen_instruments.add(inum)
                     rows.append(r)
         except Exception as exc:
             log.error("Failed to read %s: %s", path, exc)
+    if dup_count:
+        log.info("CSV dedupe: dropped %d duplicate rows across files.", dup_count)
     return rows
 
 
@@ -1477,7 +1506,7 @@ def derive_flags(lead: Lead, days_lookback: int = LOOKBACK_DAYS) -> list[str]:
 
 
 def score_lead(lead: Lead) -> int:
-    """Apply the spec's scoring rubric and return 0-100."""
+    """Apply the scoring rubric and return 0-100."""
     score = SCORE_BASE
 
     # +10 per flag
@@ -1486,6 +1515,10 @@ def score_lead(lead: Lead) -> int:
     # +20 combo: Lis pendens AND Pre-foreclosure
     if "Lis pendens" in lead.flags and "Pre-foreclosure" in lead.flags:
         score += SCORE_LP_FC_COMBO
+
+    # High-value category bonus: active foreclosure activity.
+    if lead.cat in ("LP", "NOFC"):
+        score += SCORE_CAT_LP_NOFC_BONUS
 
     # Amount tiers (apply the bigger one only)
     if lead.amount > 100_000:
@@ -1497,8 +1530,17 @@ def score_lead(lead: Lead) -> int:
     if "New this week" in lead.flags:
         score += SCORE_NEW_THIS_WEEK
 
-    # Has address (property OR mailing)
-    if lead.prop_address or lead.mail_address:
+    # Match-confidence bonus -- stronger signal than flat "has address".
+    conf = getattr(lead, "match_confidence", "")
+    if conf == "HIGH":
+        score += SCORE_CONF_HIGH
+    elif conf == "MEDIUM":
+        score += SCORE_CONF_MEDIUM
+    elif conf == "LOW":
+        score += SCORE_CONF_LOW
+    elif lead.prop_address or lead.mail_address:
+        # Fallback for any legacy path that populated an address without
+        # recording a confidence tier.
         score += SCORE_HAS_ADDRESS
 
     return max(0, min(100, int(score)))
@@ -1680,14 +1722,32 @@ async def run() -> int:
     # --- 3. Classify -> Lead, filter by date window, enrich ---------------
     window_iso = (datetime.now(timezone.utc) - timedelta(days=LOOKBACK_DAYS)) \
         .strftime("%Y-%m-%d")
+    # Owner names that are clearly not identifiable persons/entities -- these
+    # are trust-instrument clause references or similar administrative
+    # artifacts that can't be mailed. Drop at classification time.
+    JUNK_OWNER_PATTERNS = re.compile(
+        r"\bCLAUSE\s+\w+\b"                 # "CLAUSE FIFTH ...", "CLAUSE SECOND..."
+        r"|\bARTICLE\s+[IVX]+\b"            # "ARTICLE IV TRUST"
+        r"|\bSCHEDULE\s+[A-Z]\b"            # "SCHEDULE A BENEFICIARIES"
+        r"|\bSEE\s+ATTACHED\b"
+        r"|\bUNKNOWN\s+(HEIR|PARTY|OWNER|SPOUSE)S?\b"
+        r"|\bJOHN\s+DOE\b|\bJANE\s+DOE\b",
+        re.IGNORECASE,
+    )
     leads: list[Lead] = []
     filtered_out_of_zip = 0
+    dropped_junk_owner = 0
     for row in raw_rows:
         try:
             lead = row_to_lead(row)
             if not lead:
                 continue
             if lead.filed and lead.filed < window_iso:
+                continue
+            # Drop rows where the owner is an administrative artifact that
+            # can't be mailed or matched to a parcel.
+            if lead.owner and JUNK_OWNER_PATTERNS.search(lead.owner):
+                dropped_junk_owner += 1
                 continue
             enrich_with_parcel(lead, parcels)
 
@@ -1709,6 +1769,9 @@ async def run() -> int:
         log.info("Zip filter: kept %d leads (dropped %d outside %d target zips; "
                  "leads with no enriched address are kept)",
                  len(leads), filtered_out_of_zip, len(TARGET_ZIPS))
+    if dropped_junk_owner:
+        log.info("Dropped %d leads with non-identifiable owner names "
+                 "(trust clauses, John Doe, etc.)", dropped_junk_owner)
     log.info("Classified target leads: %d", len(leads))
 
     # --- 4. Flags + score -------------------------------------------------
