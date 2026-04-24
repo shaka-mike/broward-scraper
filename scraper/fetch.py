@@ -90,12 +90,13 @@ else:
 # Target lead types. The AcclaimWeb doc-type picker uses long English labels;
 # each internal `cat` maps to 1+ label substrings plus optional keyword rules
 # applied against the legal description / case number.
-LEAD_TYPES: list[dict[str, Any]] = [
+_ALL_LEAD_TYPES: list[dict[str, Any]] = [
     {
         "cat": "LP",
         "cat_label": "Lis Pendens",
         "clerk_doc_types": ["Lis Pendens"],
         "keywords": [],
+        "property_tied": True,   # Defendant is the homeowner being foreclosed.
     },
     {
         "cat": "NOFC",
@@ -104,12 +105,17 @@ LEAD_TYPES: list[dict[str, Any]] = [
         # Broward doesn't have a distinct NOFC doc type -- it's filed as
         # a Lis Pendens or Notice whose text mentions foreclosure.
         "keywords": [r"foreclos"],
+        "property_tied": True,   # By definition a property owner.
     },
     {
         "cat": "FJ",
         "cat_label": "Final Judgment",
         "clerk_doc_types": ["Final Judgment", "Certified Final Judgment"],
         "keywords": [],
+        # FJ is debt collection (credit card, car accident, contract
+        # disputes). Defendant often doesn't own Broward property. Excluded
+        # from PROPERTY_ONLY runs.
+        "property_tied": False,
     },
     {
         "cat": "PALIE",
@@ -120,18 +126,21 @@ LEAD_TYPES: list[dict[str, Any]] = [
             r"tax\s+certificate", r"non[- ]ad\s+valorem",
             r"property\s+tax",
         ],
+        "property_tied": True,   # Tied to a parcel by statute.
     },
     {
         "cat": "PRO",
         "cat_label": "Probate",
         "clerk_doc_types": ["Probate", "Death Certificate"],
         "keywords": [],
+        "property_tied": True,   # Estate frequently includes real property.
     },
     {
         "cat": "NOC",
         "cat_label": "Notice of Commencement",
         "clerk_doc_types": ["Notice of Commencement"],
         "keywords": [],
+        "property_tied": True,   # Owner filing for construction permit.
     },
     {
         "cat": "RELLP",
@@ -141,20 +150,40 @@ LEAD_TYPES: list[dict[str, Any]] = [
             "Release/Revoke/Satisfy or Terminate Hidden from Web",
         ],
         "keywords": [r"lis\s+pendens"],
+        "property_tied": True,   # Resolved LP -- still tied to a property.
     },
     {
         "cat": "LIE",
         "cat_label": "Lien",
         "clerk_doc_types": ["Lien"],
         "keywords": [],
+        # Mechanic's liens, medical liens, judgment liens -- often attach
+        # to contractors / defendants who don't own Broward property.
+        "property_tied": False,
     },
     {
         "cat": "LIEX",
         "cat_label": "Lien Hidden from Web",
         "clerk_doc_types": ["Lien Hidden from Web"],
         "keywords": [],
+        "property_tied": False,
     },
 ]
+
+# Geographic / doc-type filter flag. When PROPERTY_ONLY=1, we drop the lead
+# types whose defendants often don't own the referenced property (generic
+# liens, final judgments for credit-card debt, etc.). This raises the
+# address-match fill rate dramatically -- the kept set is property-tied by
+# definition.
+PROPERTY_ONLY = os.environ.get("PROPERTY_ONLY", "1").strip().lower() in (
+    "1", "true", "yes", "on",
+)
+if PROPERTY_ONLY:
+    LEAD_TYPES: list[dict[str, Any]] = [
+        lt for lt in _ALL_LEAD_TYPES if lt.get("property_tied", True)
+    ]
+else:
+    LEAD_TYPES = _ALL_LEAD_TYPES
 
 # Unique clerk doc-type labels to query (deduplicated across lead types).
 ALL_CLERK_DOC_TYPES: list[str] = sorted({
@@ -220,6 +249,12 @@ class Lead:
     clerk_url: str = ""
     flags: list[str] = field(default_factory=list)
     score: int = 0
+    # Parcel-enrichment match quality, per the course's HIGH/MEDIUM/LOW/NONE
+    # tiers. HIGH = exact normalized variant match, MEDIUM = unambiguous 3-word
+    # prefix match, LOW = 2-word prefix or multi-result prefix match,
+    # NONE = no match found.
+    match_confidence: str = "NONE"
+    match_reason: str = ""
 
 
 @dataclass
@@ -799,20 +834,31 @@ def download_bcpa_dbf(dest: Path) -> bool:
 
 class ParcelIndex:
     """
-    Owner-name index over the BCPA bulk parcel DBF.
+    Owner-name index over a Broward parcel dataset (BCPA DBF or FDOR NAL CSV).
 
-    Keyed by 3 normalized name variants:
-        "FIRST LAST", "LAST FIRST", "LAST, FIRST"
+    Matching strategy -- mirrors the Harris County build that hit 87% fill rate:
 
-    Column aliases (first match wins):
-        owner:         OWNER / OWN1
-        site addr:     SITE_ADDR / SITEADDR
-        site city:     SITE_CITY
-        site zip:      SITE_ZIP
-        mailing addr:  ADDR_1 / MAILADR1
-        mailing city:  CITY / MAILCITY
-        mailing state: STATE
-        mailing zip:   ZIP / MAILZIP
+      1. EXACT variant match (HIGH confidence) -- normalized "FIRST LAST",
+         "LAST FIRST", "LAST, FIRST" variants stored in `by_name`.
+      2. 3-WORD PREFIX, unambiguous (MEDIUM) -- parcel stored in `by_prefix3`;
+         MEDIUM if the 3-word key has exactly one parcel.
+      3. 2-WORD PREFIX (LOW) -- parcel stored in `by_prefix2`; LOW whether
+         or not the 2-word key is unique (uniqueness is rare at 2 words).
+      4. NONE -- no match; address fields left empty.
+
+    Normalization aggressively strips common business-entity suffixes and
+    noise words so "ACME HOLDINGS LLC" and "ACME HOLDINGS LLC TRUSTEE" index
+    to the same keys as "ACME HOLDINGS".
+
+    Column aliases (first match wins), supports both BCPA DBF and FDOR NAL:
+        owner:         OWNER / OWN1 / OWN_NAME
+        site addr:     SITE_ADDR / SITEADDR / PHY_ADDR1+PHY_ADDR2
+        site city:     SITE_CITY / PHY_CITY
+        site zip:      SITE_ZIP / PHY_ZIPCD
+        mailing addr:  ADDR_1 / MAILADR1 / OWN_ADDR1+OWN_ADDR2
+        mailing city:  CITY / MAILCITY / OWN_CITY
+        mailing state: STATE / OWN_STATE
+        mailing zip:   ZIP / MAILZIP / OWN_ZIPCD
     """
 
     OWNER_COLS      = ("OWNER", "OWN1", "OWNL", "OWN_NAME")
@@ -824,8 +870,33 @@ class ParcelIndex:
     MAIL_STATE_COLS = ("STATE", "MAILSTATE", "MAIL_STATE")
     MAIL_ZIP_COLS   = ("ZIP", "MAILZIP", "MAIL_ZIP")
 
+    # Suffixes and noise words stripped from every name before indexing /
+    # lookup. Taken from the Harris County build guide (Phase 4, "the strip
+    # list"). Applied AFTER punctuation removal and uppercasing, as
+    # whole-word matches only.
+    STRIP_WORDS = frozenset({
+        "INC", "INCORPORATED",
+        "LLC", "LLP", "LP", "LTD", "LIMITED", "CORP", "CORPORATION",
+        "COMPANY", "CO",
+        "ASSOC", "ASSOCIATION", "ASSOCIATES",
+        "HOMEOWNERS", "OWNERS", "COMMUNITY", "COMMITTEE",
+        "TRUST", "TRUSTEE", "TRUSTEES",
+        "FOUNDATION", "ETAL", "ET", "AL", "UX", "VIR",
+        "JR", "SR", "II", "III", "IV",
+        "PARTNERSHIP", "PARTNERS",
+        "REVOCABLE", "IRREVOCABLE", "LIVING",
+        "ESTATE", "ESTATES",
+        # "OF" handles "ESTATE OF JOHN SMITH" -> "JOHN SMITH"
+        "OF",
+    })
+
     def __init__(self) -> None:
+        # Exact-variant index (HIGH-confidence hits).
         self.by_name: dict[str, dict[str, str]] = {}
+        # Prefix indices. Values are lists because a prefix often maps to
+        # multiple parcels (especially at 2 words).
+        self.by_prefix3: dict[str, list[dict[str, str]]] = {}
+        self.by_prefix2: dict[str, list[dict[str, str]]] = {}
         self.record_count = 0
 
     @staticmethod
@@ -836,18 +907,78 @@ class ParcelIndex:
                 return str(v).strip()
         return ""
 
-    @staticmethod
-    def _normalize(name: str) -> str:
+    @classmethod
+    def _extract_owners(cls, raw_name: str) -> list[str]:
+        """
+        Florida tax-roll owner strings frequently pack 2+ individuals into
+        one field using formats like:
+            "LOUIS,GINA JEAN & LOUIS,JOHNY"          -> 2 fully-named owners
+            "LOUIS,JOHNY & KETLINE"                  -> 2nd inherits surname
+            "SMITH,JOHN H/W MARY"                    -> husband-wife shorthand
+            "JONES,MARY ET UX"                       -> spouse shorthand
+            "ESTATE OF JOHN SMITH"                   -> normalize to JOHN SMITH
+        We split on &/AND/H-W/H-E/ET-UX/ET-AL connectors and emit one
+        normalized name per owner so both spouses are individually
+        indexed. If we don't split, a clerk query for only one spouse
+        will never hit the parcel.
+        """
+        if not raw_name:
+            return []
+        raw = raw_name.upper()
+        # Marital/co-owner shorthand -> treat as connector.
+        raw = re.sub(r"\bH\s*[/\\]\s*[WE]\b", " & ", raw)  # H/W, H/E
+        raw = re.sub(r"\bH\s+[WE]\b",         " & ", raw)  # H W, H E
+        raw = re.sub(r"\bET\s+(UX|AL|VIR)\b", " & ", raw)  # ET UX / ET AL
+        raw = re.sub(r"\bAND\b",              " & ", raw)
+        # Semicolons and forward-slashes act like separators too.
+        raw = re.sub(r"[;/]", " ", raw)
+        parts = [p.strip() for p in raw.split("&") if p.strip()]
+
+        owners: list[str] = []
+        last_surname = ""
+        for p in parts:
+            if "," in p:
+                surname, given = p.split(",", 1)
+                surname = surname.strip()
+                given   = given.strip()
+                last_surname = surname
+                owners.append(f"{surname} {given}")
+            else:
+                # No comma -> given name only; inherits previous surname.
+                if last_surname:
+                    owners.append(f"{last_surname} {p}")
+                else:
+                    owners.append(p)
+        # Normalize each and drop empties.
+        return [n for n in (cls._normalize(o) for o in owners) if n]
+
+    @classmethod
+    def _normalize(cls, name: str) -> str:
+        """
+        Uppercase. Strip punctuation (but handle apostrophe-S as a unit so
+        HOMEOWNER'S -> HOMEOWNERS, not HOMEOWNER S). Remove suffixes / noise
+        words via the STRIP list. Collapse whitespace.
+        """
         if not name:
             return ""
-        return re.sub(r"\s+", " ", re.sub(r"[^\w\s,]", "", name.upper())).strip()
+        s = name.upper()
+        # Apostrophe-S: drop the "'S" as a unit before generic punctuation
+        # stripping, so we don't leave a stray "S" token.
+        s = re.sub(r"'S\b", "", s)
+        # Replace punctuation with spaces (keep letters/digits/whitespace).
+        s = re.sub(r"[^\w\s]", " ", s)
+        # Collapse whitespace.
+        s = re.sub(r"\s+", " ", s).strip()
+        # Remove STRIP words (whole-word).
+        tokens = [t for t in s.split() if t not in cls.STRIP_WORDS]
+        return " ".join(tokens)
 
     @classmethod
     def name_variants(cls, raw_name: str) -> set[str]:
         """
-        Produce the three required lookup variants.
+        Produce exact-match lookup variants for HIGH-confidence hits.
             FIRST LAST, LAST FIRST, LAST, FIRST
-        Handles middle names / initials / suffixes.
+        Runs AFTER normalization so the STRIP list has already been applied.
         """
         norm = cls._normalize(raw_name)
         if not norm:
@@ -855,31 +986,67 @@ class ParcelIndex:
 
         variants: set[str] = {norm}
 
-        if "," in norm:
-            left, _, right = norm.partition(",")
-            left, right = left.strip(), right.strip()
-            if left and right:
-                variants.add(f"{left}, {right}")      # LAST, FIRST
-                variants.add(f"{left} {right}")       # LAST FIRST
-                variants.add(f"{right} {left}")       # FIRST LAST
-                # Drop middle names for a tighter match.
-                first_only = right.split()[0] if right.split() else ""
-                if first_only:
-                    variants.add(f"{first_only} {left}")
-                    variants.add(f"{left} {first_only}")
-                    variants.add(f"{left}, {first_only}")
+        # A "LAST, FIRST" shape may still exist even after normalization,
+        # because the comma was removed as punctuation -- so we split on
+        # comma from the ORIGINAL input in addition to post-normalize space.
+        raw_upper = raw_name.upper() if raw_name else ""
+        if "," in raw_upper:
+            left, _, right = raw_upper.partition(",")
+            ln = cls._normalize(left)
+            rn = cls._normalize(right)
+            if ln and rn:
+                variants.add(f"{ln} {rn}")       # LAST FIRST (commaless)
+                variants.add(f"{rn} {ln}")       # FIRST LAST
+                # First-name-only pairing for middle-name noise tolerance.
+                rn_first = rn.split()[0] if rn.split() else ""
+                if rn_first:
+                    variants.add(f"{rn_first} {ln}")
+                    variants.add(f"{ln} {rn_first}")
         else:
             parts = norm.split()
             if len(parts) >= 2:
                 first, last = parts[0], parts[-1]
                 variants.add(f"{first} {last}")
                 variants.add(f"{last} {first}")
-                variants.add(f"{last}, {first}")
 
         return {v for v in variants if v}
 
+    @classmethod
+    def _prefix_keys(cls, raw_name: str) -> tuple[str, str]:
+        """
+        Build the 2-word and 3-word prefix keys for a name.
+        Returns ("", "") when the normalized name is too short.
+        """
+        norm = cls._normalize(raw_name)
+        if not norm:
+            return "", ""
+        parts = norm.split()
+        k2 = " ".join(parts[:2]) if len(parts) >= 2 else ""
+        k3 = " ".join(parts[:3]) if len(parts) >= 3 else ""
+        return k2, k3
+
+    def _register_parcel(self, owner: str, parcel: dict[str, str]) -> None:
+        """
+        Register a parcel under all its indexable keys. Handles co-owner
+        strings like "SMITH,JOHN & SMITH,MARY" by extracting each owner
+        separately -- so a clerk query matching EITHER spouse finds the
+        parcel.
+        """
+        # Decompose into 1+ normalized owner names.
+        owner_names = self._extract_owners(owner)
+        for norm_owner in owner_names:
+            # Exact variants (HIGH).
+            for variant in self.name_variants(norm_owner):
+                self.by_name.setdefault(variant, parcel)
+            # Prefix indices (MEDIUM / LOW).
+            k2, k3 = self._prefix_keys(norm_owner)
+            if k3:
+                self.by_prefix3.setdefault(k3, []).append(parcel)
+            if k2:
+                self.by_prefix2.setdefault(k2, []).append(parcel)
+
     def load(self, dbf_path: Path) -> None:
-        """Load the DBF and build the index. Never raises."""
+        """Load the BCPA DBF and build the index. Never raises."""
         if not dbf_path.exists():
             log.info("BCPA DBF not present at %s; parcel enrichment disabled.", dbf_path)
             return
@@ -915,9 +1082,7 @@ class ParcelIndex:
                         "mail_zip":   self._first(rec, self.MAIL_ZIP_COLS),
                     }
 
-                    for variant in self.name_variants(owner):
-                        # First writer wins -- avoids overwriting early hits.
-                        self.by_name.setdefault(variant, parcel)
+                    self._register_parcel(owner, parcel)
 
                     self.record_count += 1
                     if self.record_count % 100_000 == 0:
@@ -932,8 +1097,9 @@ class ParcelIndex:
             log.error("Failed to load BCPA DBF: %s", exc)
             return
 
-        log.info("BCPA index ready: %d parcels, %d name variants",
-                 self.record_count, len(self.by_name))
+        log.info("BCPA index ready: %d parcels | exact=%d  prefix3=%d  prefix2=%d",
+                 self.record_count, len(self.by_name),
+                 len(self.by_prefix3), len(self.by_prefix2))
 
     def load_fdor_csv(self, csv_path: Path) -> None:
         """
@@ -991,8 +1157,7 @@ class ParcelIndex:
                             "mail_zip":   (rec.get("OWN_ZIPCD") or "").strip(),
                         }
 
-                        for variant in self.name_variants(owner):
-                            self.by_name.setdefault(variant, parcel)
+                        self._register_parcel(owner, parcel)
 
                         self.record_count += 1
                         if self.record_count % 100_000 == 0:
@@ -1006,16 +1171,58 @@ class ParcelIndex:
             log.error("Failed to load FDOR NAL CSV: %s", exc)
             return
 
-        log.info("FDOR NAL index ready: %d parcels, %d name variants",
-                 self.record_count, len(self.by_name))
+        log.info("FDOR NAL index ready: %d parcels | exact=%d  prefix3=%d  prefix2=%d",
+                 self.record_count, len(self.by_name),
+                 len(self.by_prefix3), len(self.by_prefix2))
 
     def lookup(self, raw_name: str) -> dict[str, str] | None:
-        if not self.by_name or not raw_name:
+        """
+        Backwards-compatible simple lookup. Returns just the parcel dict or
+        None. For confidence-aware lookups, use lookup_with_confidence().
+        """
+        hit = self.lookup_with_confidence(raw_name)
+        return hit[0] if hit else None
+
+    def lookup_with_confidence(
+        self, raw_name: str
+    ) -> tuple[dict[str, str], str, str] | None:
+        """
+        Tiered name lookup. Returns (parcel, confidence, reason) or None.
+
+            HIGH   -> exact normalized variant hit
+            MEDIUM -> 3-word prefix, unambiguous (single parcel)
+            LOW    -> 3-word prefix ambiguous, or 2-word prefix (any cardinality)
+            NONE   -> nothing found (returns None)
+        """
+        if not raw_name or (not self.by_name and not self.by_prefix2):
             return None
+
+        # HIGH: exact variant match.
         for variant in self.name_variants(raw_name):
             hit = self.by_name.get(variant)
             if hit:
-                return hit
+                return hit, "HIGH", "exact"
+
+        # Compute prefix keys once.
+        k2, k3 = self._prefix_keys(raw_name)
+
+        # MEDIUM: 3-word prefix, unambiguous.
+        if k3:
+            bucket3 = self.by_prefix3.get(k3)
+            if bucket3:
+                if len(bucket3) == 1:
+                    return bucket3[0], "MEDIUM", "name_prefix_3"
+                # 3-word prefix but multiple hits -> LOW, pick first.
+                return bucket3[0], "LOW", "name_prefix_3_ambiguous"
+
+        # LOW: 2-word prefix (whether unique or not).
+        if k2:
+            bucket2 = self.by_prefix2.get(k2)
+            if bucket2:
+                if len(bucket2) == 1:
+                    return bucket2[0], "LOW", "name_prefix_2"
+                return bucket2[0], "LOW", "name_prefix_2_ambiguous"
+
         return None
 
 
@@ -1170,9 +1377,11 @@ def row_to_lead(row: dict[str, str]) -> Lead | None:
 
 def enrich_with_parcel(lead: Lead, parcels: ParcelIndex) -> None:
     """Attach BCPA property & mailing addresses when available."""
-    parcel = parcels.lookup(lead.owner)
-    if not parcel:
+    hit = parcels.lookup_with_confidence(lead.owner)
+    if not hit:
+        # Leave match_confidence="NONE" default.
         return
+    parcel, confidence, reason = hit
     lead.prop_address = parcel.get("site_addr", "")
     lead.prop_city    = parcel.get("site_city", "")
     lead.prop_state   = "FL"
@@ -1181,6 +1390,8 @@ def enrich_with_parcel(lead: Lead, parcels: ParcelIndex) -> None:
     lead.mail_city    = parcel.get("mail_city", "")
     lead.mail_state   = parcel.get("mail_state", "")
     lead.mail_zip     = parcel.get("mail_zip", "")
+    lead.match_confidence = confidence
+    lead.match_reason     = reason
 
 
 # =============================================================================
@@ -1422,6 +1633,9 @@ async def run() -> int:
     date_from, date_to = date_window(LOOKBACK_DAYS)
     log.info("Broward scraper run  window=%s..%s  lookback=%d days",
              date_from, date_to, LOOKBACK_DAYS)
+    log.info("Lead types active: %s %s",
+             [lt["cat"] for lt in LEAD_TYPES],
+             "(PROPERTY_ONLY=on)" if PROPERTY_ONLY else "(full set)")
 
     # --- 1. Gather raw clerk rows -----------------------------------------
     raw_rows: list[dict[str, str]] = load_clerk_csv_fallback(CLERK_CSV_DIR)
@@ -1515,10 +1729,21 @@ async def run() -> int:
 
     hot  = sum(1 for l in leads if l.score >= 70)
     warm = sum(1 for l in leads if 50 <= l.score < 70)
+    with_addr = sum(1 for l in leads if l.prop_address or l.mail_address)
     log.info("Summary  total=%d  hot(>=70)=%d  warm(50-69)=%d  "
              "with_address=%d",
-             len(leads), hot, warm,
-             sum(1 for l in leads if l.prop_address or l.mail_address))
+             len(leads), hot, warm, with_addr)
+
+    # Match-confidence breakdown -- per the course's HIGH/MED/LOW/NONE tiers.
+    # Fill rate = (HIGH + MEDIUM + LOW) / total. Course target: >=87%.
+    conf = {"HIGH": 0, "MEDIUM": 0, "LOW": 0, "NONE": 0}
+    for l in leads:
+        conf[l.match_confidence] = conf.get(l.match_confidence, 0) + 1
+    matched = conf["HIGH"] + conf["MEDIUM"] + conf["LOW"]
+    rate = (100.0 * matched / len(leads)) if leads else 0.0
+    log.info("Match confidence  HIGH=%d  MEDIUM=%d  LOW=%d  NONE=%d  "
+             "(fill rate %.1f%%)",
+             conf["HIGH"], conf["MEDIUM"], conf["LOW"], conf["NONE"], rate)
     return 0
 
 
